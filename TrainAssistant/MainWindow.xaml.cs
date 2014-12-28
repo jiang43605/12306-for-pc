@@ -37,7 +37,7 @@ namespace TrainAssistant
         }
 
         //窗口加载
-        private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)
+        private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
             if (ticketHelper.CheckInternetConnectedState())
             {
@@ -46,8 +46,6 @@ namespace TrainAssistant
                 txtDate.Text = txtDate.DisplayDateEnd.Value.ToString("yyyy-MM-dd");
 
                 IsShowLoginPopup(true);
-
-                lblLogin.Tag = await ticketHelper.GetLoginRandomKey();
 
                 byte[] buffter = TrainAssistant.Properties.Resources.data;
                 if (!BasicOCR.LoadLibFromBuffer(buffter, buffter.Length, "123"))
@@ -76,9 +74,8 @@ namespace TrainAssistant
                 gridOpacity.Visibility = Visibility.Visible;
                 loginPopup.Visibility = Visibility.Visible;
                 lblErrorMsg.Content = "";
-
+                lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["LoginRandomParamUrl"],false);
                 await GetValidateCodeImage();
-
                 List<Users> users = ticketHelper.ReadUser(accountFile);
                 if (users.Count > 0)
                 {
@@ -87,7 +84,7 @@ namespace TrainAssistant
                     txtUserName.SelectedValuePath = "Name";
                     txtUserName.SelectedIndex = 0;
                 }
-
+                
             }
             else
             {
@@ -136,7 +133,6 @@ namespace TrainAssistant
                     if (model.IsAutoLogin)
                     {
                         chkAutoLogin.IsChecked = true;
-                        //btnLogin_Click(sender, e);
                     }
                     else
                     {
@@ -222,15 +218,7 @@ namespace TrainAssistant
             btnLogin.IsEnabled = false;
             try
             {
-                //string loginCodeResult = await ticketHelper.ValidateLoginCode(txtValidateCode.Text.Trim());
-                //if (loginCodeResult.Contains("验证码错误"))
-                //{
-                //    lblErrorMsg.Content = loginCodeResult;
-                //    btnLogin.IsEnabled = true;
-                //    progressRingAnima.IsActive = false;
-                //    return;
-                //}
-                lblErrorMsg.Content = await ticketHelper.Login(txtUserName.Text.Trim(), txtPassword.Password.Trim(), txtValidateCode.Text.Trim(), (bool)chkRemeberMe.IsChecked, (bool)chkAutoLogin.IsChecked,lblLogin.Tag.ToString());
+                lblErrorMsg.Content = await ticketHelper.Login(txtUserName.Text.Trim(), txtPassword.Password.Trim(), txtValidateCode.Text.Trim(), (bool)chkRemeberMe.IsChecked, (bool)chkAutoLogin.IsChecked, lblRandomParam.Tag.ToString());
             }
             catch (Exception)
             {
@@ -259,9 +247,11 @@ namespace TrainAssistant
                     txtEndCity.SelectedValue = query.ToCode.ToString();
                     txtDate.Text = query.Date.ToString();
                 }
+                lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["QueryRandomParamUrl"],false);
             }
             else
             {
+                lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["LoginRandomParamUrl"], false);
                 await GetValidateCodeImage();
             }
             btnLogin.IsEnabled = true;
@@ -382,18 +372,22 @@ namespace TrainAssistant
                     }
                     lblTicket.Content = tickets.FromStationName + "→" + tickets.ToStationName + "(" + tickets.TrainName + ")";
                     lblTicket.Tag = tickets.StartTrainDate + "," + tickets.TrainNo + "," + tickets.TrainName + "," + tickets.FromStationCode + "," + tickets.ToStationCode + "," + tickets.YPInfo + "," + tickets.LocationCode;
-                    Dictionary<bool, string> dicSubmitOrderReq = await ticketHelper.SubmitOrderRequest(tickets, purposeCode);
+                    Dictionary<bool, string> dicSubmitOrderReq = await ticketHelper.SubmitOrderRequest(tickets, purposeCode,lblRandomParam.Tag.ToString());
                     if (!dicSubmitOrderReq.Keys.First())
                     {
                         progressRingAnima.IsActive = false;
                         MessageBox.Show(dicSubmitOrderReq.Values.First(), "提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                        lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["QueryRandomParamUrl"], false);
                         return;
                     }
                     gridOpacity.Visibility = Visibility.Visible;
                     orderPopup.Visibility = Visibility.Visible;
                     await GetContacts();
                     lblStatusMsg.Content = "获取提交订单凭证中...";
-                    lblSecretStr.Content = await ticketHelper.GetSubmitOrderToken();
+                    string submitOrderRandoms = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["OrderTokenUrl"], true);
+                    var arrRandoms = submitOrderRandoms.Split('⊗');
+                    lblRandomParam.Tag=arrRandoms[0];
+                    lblSecretStr.Content = await ticketHelper.GetSubmitOrderToken(arrRandoms[1]);
                     await GetOrderCode();
                     progressRingAnima.IsActive = false;
                     lblStatusMsg.Content = "订单信息初始化完成";
@@ -881,11 +875,13 @@ namespace TrainAssistant
         }
 
         //关闭提交订单层
-        private void btnClosePopup_Click(object sender, RoutedEventArgs e)
+        private async void btnClosePopup_Click(object sender, RoutedEventArgs e)
         {
             gridOpacity.Visibility = Visibility.Hidden;
             orderPopup.Visibility = Visibility.Hidden;
             gridPassenger.ItemsSource = null;
+            lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["QueryRandomParamUrl"], false);
+            await SearchTickets();
         }
 
         //更换订单验证码
@@ -962,7 +958,7 @@ namespace TrainAssistant
                 return "验证码不正确";
             }
             //检查订单信息
-            Dictionary<bool, string> checkOrderInfo = await ticketHelper.CheckOrderInfo(passengerTickets, oldPassengers, submitOrderCode, token);
+            Dictionary<bool, string> checkOrderInfo = await ticketHelper.CheckOrderInfo(passengerTickets, oldPassengers, submitOrderCode, token,lblRandomParam.Tag.ToString());
             if (!checkOrderInfo.Keys.First())
             {
                 return checkOrderInfo.Values.First();
@@ -1035,7 +1031,7 @@ namespace TrainAssistant
         }
 
         //可预订
-        private async void chkCanReservate_Click(object sender, RoutedEventArgs e)
+        private void chkCanReservate_Click(object sender, RoutedEventArgs e)
         {
             //progressRingAnima.IsActive = true;
             //progressRingAnima.IsActive = false;
@@ -1055,7 +1051,6 @@ namespace TrainAssistant
                 {
                     borderAutoSubmitOrder.Visibility = Visibility.Visible;
                     gridOpacity.Visibility = Visibility.Visible;
-
 
                     //乘客
                     lblStatusMsg.Content = "加载乘客中...";
@@ -1169,7 +1164,6 @@ namespace TrainAssistant
                         chkTicket.SetValue(Grid.RowProperty, tR);
                         chkTicket.SetValue(Grid.ColumnProperty, tC);
                     }
-
                     lblStatusMsg.Content = "预选信息加载完成";
                     progressRingAnima.IsActive = false;
                 }
@@ -1334,13 +1328,10 @@ namespace TrainAssistant
             }
             if (lstSeatTypes.Count() < 1)
             {
-                foreach (var chkItem in gridSeatTypes.Children)
+                string[] seatTypeArrs= {"商务座","特等座","一等座","二等座","高级软卧","软卧","硬卧","动卧","高级动卧","软座","硬座","无座"};
+                for (int i = 0; i < seatTypeArrs.Length; i++)
                 {
-                    if (chkItem is CheckBox)
-                    {
-                        CheckBox chkSeatType = chkItem as CheckBox;
-                        lstSeatTypes.Add(chkSeatType.Tag.ToString());
-                    }
+                    lstSeatTypes.Add(seatTypeArrs[i].ToString());
                 }
             }
             List<string> lstContacts = new List<string>();
@@ -1390,7 +1381,12 @@ namespace TrainAssistant
                             TrainNo = chkTicket.Name.Replace("chk", ""),
                             TrainName = chkTicket.Content.ToString()
                         };
-                        Dictionary<bool, string> dicAutoSubmitOrder = await ticketHelper.AutoSubmitOrderRequest(ticket, passengerTickets, oldPassengers);
+                        Dictionary<bool, string> dicAutoSubmitOrder = new Dictionary<bool, string>();
+                        do
+                        {
+                            string autoSubmitRandomKey = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["QueryRandomParamUrl"], false);
+                            dicAutoSubmitOrder = await ticketHelper.AutoSubmitOrderRequest(ticket, passengerTickets, oldPassengers, autoSubmitRandomKey);
+                        } while (dicAutoSubmitOrder.Values.First().Contains("插件"));
                         if (!dicAutoSubmitOrder.Keys.First())
                         {
                             continue;

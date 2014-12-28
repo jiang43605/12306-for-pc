@@ -104,10 +104,6 @@
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
     </Compile>
-    <Page Include="AutoCompleteTextBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="CodeOCRDemo.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -116,13 +112,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AutoCompleteTextBox.xaml.cs">
-      <DependentUpon>AutoCompleteTextBox.xaml</DependentUpon>
-    </Compile>
     <Compile Include="CodeOCRDemo.xaml.cs">
       <DependentUpon>CodeOCRDemo.xaml</DependentUpon>
     </Compile>
-    <Compile Include="HelperClass\AutoCompleteEntry.cs" />
     <Compile Include="HelperClass\HttpHelper.cs" />
     <Compile Include="HelperClass\DataSecurity.cs" />
     <Compile Include="HelperClass\BasicOCR.cs" />

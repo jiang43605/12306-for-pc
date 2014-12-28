@@ -198,12 +198,16 @@ namespace JasonLong.Helper
             });
         }
 
-        public Task<string> GetLoginRandomKey()
+        /// <summary>
+        /// 获取随机参数名
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public Task<string> GetRandomParamKey(string url, bool isOrderToken)
         {
             return Task.Factory.StartNew(() =>
             {
-                string url=ConfigurationManager.AppSettings["LoginRadomParamUrl"];
-                string result = httpHelper.GetResponseChartByGET(url);
+                string result = httpHelper.GetResponseChartByGET(url), strOrderToken = result;
                 var script = Regex.Match(result, "<script\\s+src=\"/otn/dynamicJs/(?<script>[^']+)\"\\s+type=\"text/javascript\"\\s+xml:space=\"preserve\"></script>", RegexOptions.Singleline, TimeSpan.FromSeconds(10));
                 if (script.Success)
                 {
@@ -213,13 +217,22 @@ namespace JasonLong.Helper
                 {
                     url = "https://kyfw.12306.cn/otn/dynamicJs/" + result;
                     result = httpHelper.GetResponseChartByGET(url);
-                    var random = Regex.Match(result, @"var\s+key='(?<random>[^']+)';",RegexOptions.Singleline,TimeSpan.FromSeconds(10));
+                    var random = Regex.Match(result, @"var\s+key='(?<random>[^']+)';", RegexOptions.Singleline, TimeSpan.FromSeconds(10));
+                    var ajaxJs = Regex.Match(result, @"url\s+:'/otn/dynamicJs/(?<ajaxJs>[^']+)',", RegexOptions.Singleline, TimeSpan.FromSeconds(10));
                     if (random.Success)
                     {
                         result = random.Groups["random"].Value;
                     }
+                    if (ajaxJs.Success)
+                    {
+                        url = "https://kyfw.12306.cn/otn/dynamicJs/" + ajaxJs.Groups["ajaxJs"].Value;
+                        Dictionary<string, string> dicParams = new Dictionary<string, string>(){
+                            {"_json_att",""}
+                        };
+                        httpHelper.GetResponseByPOST(url, dicParams);
+                    }
                 }
-                return result;
+                return result = isOrderToken ? result + "⊗" + strOrderToken : result;
             });
         }
 
@@ -232,12 +245,12 @@ namespace JasonLong.Helper
         /// <param name="isRemeberMe"></param>
         /// <param name="isAutoLogin"></param>
         /// <returns></returns>
-        public Task<string> Login(string userName, string password, string code, bool isRemeberMe, bool isAutoLogin,string loginRandomKey)
+        public Task<string> Login(string userName, string password, string code, bool isRemeberMe, bool isAutoLogin, string loginRandomKey)
         {
             return Task.Factory.StartNew(() =>
             {
                 string result = "", url = ConfigurationManager.AppSettings["LoginUrl"].ToString();
-                string loginrandomValue = JSFunctionHelper.GetLoginRandomCodes(loginRandomKey,"1111");
+                string loginrandomValue = JSFunctionHelper.GetRandomParamCodes(loginRandomKey, "1111");
                 Dictionary<string, string> param = new Dictionary<string, string>();
                 param.Add("loginUserDTO.user_name", userName);//用户名
                 param.Add("userDTO.password", password);//密码
@@ -254,6 +267,7 @@ namespace JasonLong.Helper
                     if (errormsg != "[]")
                     {
                         result = errormsg.Replace("[", "").Replace("]", "").Trim();
+                        result = result.Contains("\"randCodeError\"") ? "验证码错误" : result;
                     }
                     else
                     {
@@ -266,7 +280,7 @@ namespace JasonLong.Helper
                             {
                                 List<Users> users = ReadUser(accountFile);
                                 var u = (from p in users
-                                         where p.Name == userName
+                                         where p.Name == userName && p.Password == dsecurity.Encrypto(password)
                                          select p).FirstOrDefault<Users>();
                                 if (u == null)
                                 {
@@ -741,20 +755,23 @@ namespace JasonLong.Helper
         /// <param name="ticket"></param>
         /// <param name="purposeCode"></param>
         /// <returns></returns>
-        public Task<Dictionary<bool, string>> SubmitOrderRequest(Tickets ticket, string purposeCode)
+        public Task<Dictionary<bool, string>> SubmitOrderRequest(Tickets ticket, string purposeCode, string queryRandomKey)
         {
             return Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(100);
                 string orderRequestUrl = ConfigurationManager.AppSettings["SubmitOrderRequestUrl"].ToString();
+                string queryRandomValue = JSFunctionHelper.GetRandomParamCodes(queryRandomKey, "1111");
                 Dictionary<string, string> orderRequesParams = new Dictionary<string, string>()
                 {
+                    {queryRandomKey,queryRandomValue},
+                    {"myversion","undefined"},
                     {"secretStr",ticket.SecretStr},
                     {"train_date",ticket.StartTrainDate},
                     {"back_train_date",DateTime.Now.ToString("yyyy-MM-dd")},
                     {"tour_flag","dc"},
                     {"purpose_codes",purposeCode},
-                    {"query_from_station_name",ticket.StartStationName},
+                    {"query_from_station_name",ticket.FromStationName},
                     {"query_to_station_name",ticket.ToStationName},
                     {"undefined",""}
                 };
@@ -773,23 +790,18 @@ namespace JasonLong.Helper
         /// 获取提交订单凭证
         /// </summary>
         /// <returns></returns>
-        public Task<string> GetSubmitOrderToken()
+        public Task<string> GetSubmitOrderToken(string strTokenForHtml)
         {
             return Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(100);
-                string submitOrderTokenUrl = ConfigurationManager.AppSettings["OrderTokenUrl"].ToString(), result = "";
-                Dictionary<string, string> submitOrderTokenParams = new Dictionary<string, string>(){
-                    {"_json_att",""}
-                };
-                result = httpHelper.GetResponseByPOST(submitOrderTokenUrl, submitOrderTokenParams);
                 string strResult = "";
-                var strToken = Regex.Match(result, @"var\s+globalRepeatSubmitToken\s*=\s*'(?<token>[^']+)';", RegexOptions.Singleline, TimeSpan.FromSeconds(10));
+                var strToken = Regex.Match(strTokenForHtml, @"var\s+globalRepeatSubmitToken\s*=\s*'(?<token>[^']+)';", RegexOptions.Singleline, TimeSpan.FromSeconds(10));
                 if (strToken.Success)
                 {
                     strResult = strToken.Groups["token"].Value;
                 }
-                var keyIsChang = Regex.Match(result, @"'key_check_isChange':'(?<key>[^']+)'", RegexOptions.Singleline, TimeSpan.FromSeconds(10));
+                var keyIsChang = Regex.Match(strTokenForHtml, @"'key_check_isChange':'(?<key>[^']+)'", RegexOptions.Singleline, TimeSpan.FromSeconds(10));
                 if (keyIsChang.Success)
                 {
                     strResult += "," + keyIsChang.Groups["key"].Value;
@@ -879,11 +891,12 @@ namespace JasonLong.Helper
         /// <param name="lstPassengers"></param>
         /// <param name="code"></param>
         /// <returns></returns>
-        public Task<Dictionary<bool, string>> CheckOrderInfo(string passengerTickets, string oldPassengers, string code, string token)
+        public Task<Dictionary<bool, string>> CheckOrderInfo(string passengerTickets, string oldPassengers, string code, string token, string checkOrderRandomKey)
         {
             return Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(100);
+                string checkOrderValue = JSFunctionHelper.GetRandomParamCodes(checkOrderRandomKey, "1111");
                 Dictionary<string, string> checkOrderParams = new Dictionary<string, string>();
                 checkOrderParams.Add("cancel_flag", "2");
                 checkOrderParams.Add("bed_level_order_num", "000000000000000000000000000000");
@@ -891,6 +904,7 @@ namespace JasonLong.Helper
                 checkOrderParams.Add("oldPassengerStr", oldPassengers);
                 checkOrderParams.Add("tour_flag", "dc");
                 checkOrderParams.Add("randCode", code);
+                checkOrderParams.Add(checkOrderRandomKey, checkOrderValue);
                 checkOrderParams.Add("_json_att", "");
                 checkOrderParams.Add("REPEAT_SUBMIT_TOKEN", token);
                 string checkOrderInfoUrl = ConfigurationManager.AppSettings["CheckOrderInfoUrl"].ToString();
@@ -1042,13 +1056,16 @@ namespace JasonLong.Helper
         /// <param name="cancelFlag"></param>
         /// <param name="bedLevelOrderNum"></param>
         /// <returns></returns>
-        public Task<Dictionary<bool, string>> AutoSubmitOrderRequest(Tickets ticket, string passengerTickets, string oldPassengers, string tourFlag = "dc", string purposeCode = "ADULT", string cancelFlag = "2", string bedLevelOrderNum = "000000000000000000000000000000")
+        public Task<Dictionary<bool, string>> AutoSubmitOrderRequest(Tickets ticket, string passengerTickets, string oldPassengers, string autoSubmitRandomKey,string tourFlag = "dc", string purposeCode = "ADULT", string cancelFlag = "2", string bedLevelOrderNum = "000000000000000000000000000000")
         {
             return Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(100);
+                string autoSubmitRandomValue = JSFunctionHelper.GetRandomParamCodes(autoSubmitRandomKey,"1111");
                 Dictionary<string, string> dicAutoSubmitOrderParams = new Dictionary<string, string>()
                 {
+                    {autoSubmitRandomKey,autoSubmitRandomValue},
+                    {"myversion","undefined"},
                     {"secretStr",ticket.SecretStr},
                     {"train_date",ticket.StartTrainDate},
                     {"tour_flag",tourFlag},
