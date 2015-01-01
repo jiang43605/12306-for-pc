@@ -413,6 +413,21 @@ namespace TrainAssistant
         /// <returns></returns>
         private async Task<int> SearchTickets()
         {
+            if (txtStartCity.Text.Trim() == "")
+            {
+                lblStatusMsg.Content = "出发地不能为空";
+                return 0;
+            }
+            if (txtEndCity.Text.Trim() == "")
+            {
+                lblStatusMsg.Content = "目的地不能为空";
+                return 0;
+            }
+            if (txtDate.Text.Trim() == "")
+            {
+                lblStatusMsg.Content = "出发日期不能为空";
+                return 0;
+            }
             lblStatusMsg.Content = "查询中...";
             Stations formStation = null;
             Stations toStation = null;
@@ -693,21 +708,6 @@ namespace TrainAssistant
         //搜索
         private async void btnSearch_Click(object sender, RoutedEventArgs e)
         {
-            if (txtStartCity.Text.Trim() == "")
-            {
-                lblStatusMsg.Content = "出发地不能为空";
-                return;
-            }
-            if (txtEndCity.Text.Trim() == "")
-            {
-                lblStatusMsg.Content = "目的地不能为空";
-                return;
-            }
-            if (txtDate.Text.Trim() == "")
-            {
-                lblStatusMsg.Content = "出发日期不能为空";
-                return;
-            }
             progressRingAnima.IsActive = true;
             await SearchTickets();
             progressRingAnima.IsActive = false;
