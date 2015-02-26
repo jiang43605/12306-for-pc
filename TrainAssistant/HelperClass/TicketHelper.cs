@@ -380,7 +380,7 @@ namespace JasonLong.Helper
                 List<Tickets> ticks = new List<Tickets>();
                 string url = ConfigurationManager.AppSettings["QueryTicketUrl"] + "?leftTicketDTO.train_date=" + date + "&leftTicketDTO.from_station=" + fromstation + "&leftTicketDTO.to_station=" + tostation + "&purpose_codes=" + purposecode;
                 string result = httpHelper.GetResponseChartByGET(url);
-                if (result != "" && result != "-1")
+                if (result != "" && result != "-1" && !result.Contains("错误"))
                 {
                     JObject json = JObject.Parse(result);
                     if ((bool)json["status"])
@@ -1056,12 +1056,12 @@ namespace JasonLong.Helper
         /// <param name="cancelFlag"></param>
         /// <param name="bedLevelOrderNum"></param>
         /// <returns></returns>
-        public Task<Dictionary<bool, string>> AutoSubmitOrderRequest(Tickets ticket, string passengerTickets, string oldPassengers, string autoSubmitRandomKey,string tourFlag = "dc", string purposeCode = "ADULT", string cancelFlag = "2", string bedLevelOrderNum = "000000000000000000000000000000")
+        public Task<Dictionary<bool, string>> AutoSubmitOrderRequest(Tickets ticket, string passengerTickets, string oldPassengers, string autoSubmitRandomKey, string tourFlag = "dc", string purposeCode = "ADULT", string cancelFlag = "2", string bedLevelOrderNum = "000000000000000000000000000000")
         {
             return Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(100);
-                string autoSubmitRandomValue = JSFunctionHelper.GetRandomParamCodes(autoSubmitRandomKey,"1111");
+                string autoSubmitRandomValue = JSFunctionHelper.GetRandomParamCodes(autoSubmitRandomKey, "1111");
                 Dictionary<string, string> dicAutoSubmitOrderParams = new Dictionary<string, string>()
                 {
                     {autoSubmitRandomKey,autoSubmitRandomValue},

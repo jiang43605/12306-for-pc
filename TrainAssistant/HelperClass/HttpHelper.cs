@@ -122,35 +122,42 @@ namespace JasonLong.Helper
         /// <returns></returns>
         public string GetResponseChartByGET(string url)
         {
-            Uri uri = new Uri(url);
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-            request.KeepAlive = true;
-            request.Method = "GET";
-            request.ServicePoint.Expect100Continue = false;
-            request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
-            request.AllowAutoRedirect = true;
-            request.CookieContainer = cookieContainer;
-            request.ContentType = ContentType;
-            request.Accept = Accept;
-            request.UserAgent = UserAgent;
-            request.Timeout = 30000;
-            ServicePointManager.ServerCertificateValidationCallback += (se, cert, chain, sslerror) =>
+            try
             {
-                return true;
-            };
-            Encoding encoding = Encoding.GetEncoding("UTF-8");
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            if (response.Cookies.Count > 0)
-            {
-                cookieContainer.Add(response.Cookies);
+                Uri uri = new Uri(url);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
+                request.KeepAlive = true;
+                request.Method = "GET";
+                request.ServicePoint.Expect100Continue = false;
+                request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
+                request.AllowAutoRedirect = true;
+                request.CookieContainer = cookieContainer;
+                request.ContentType = ContentType;
+                request.Accept = Accept;
+                request.UserAgent = UserAgent;
+                request.Timeout = 30000;
+                ServicePointManager.ServerCertificateValidationCallback += (se, cert, chain, sslerror) =>
+                {
+                    return true;
+                };
+                Encoding encoding = Encoding.GetEncoding("UTF-8");
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                if (response.Cookies.Count > 0)
+                {
+                    cookieContainer.Add(response.Cookies);
+                }
+                Stream stream = response.GetResponseStream();
+                if (response.ContentEncoding.ToLower().Contains("gzip"))//是否压缩
+                {
+                    stream = new GZipStream(stream, CompressionMode.Decompress);
+                }
+                StreamReader reader = new StreamReader(stream, encoding);
+                return reader.ReadToEnd();
             }
-            Stream stream = response.GetResponseStream();
-            if (response.ContentEncoding.ToLower().Contains("gzip"))//是否压缩
+            catch (Exception ex)
             {
-                stream = new GZipStream(stream, CompressionMode.Decompress);
+                return "错误：" + ex.Message;
             }
-            StreamReader reader = new StreamReader(stream, encoding);
-            return reader.ReadToEnd();
         }
 
         /// <summary>
@@ -221,12 +228,12 @@ namespace JasonLong.Helper
         /// <returns></returns>
         public string UnicodeToGBK(string str)
         {
-            MatchCollection match = Regex.Matches(str,"\\\\u([\\w{4}])");
-            string text=str.Replace(@"\u","");
+            MatchCollection match = Regex.Matches(str, "\\\\u([\\w{4}])");
+            string text = str.Replace(@"\u", "");
             char[] charStr = new char[match.Count];
             for (int i = 0; i < charStr.Length; i++)
             {
-                charStr[i] = (char)Convert.ToInt32(text.Substring(i*4,4),16);
+                charStr[i] = (char)Convert.ToInt32(text.Substring(i * 4, 4), 16);
             }
             return new string(charStr);
         }
