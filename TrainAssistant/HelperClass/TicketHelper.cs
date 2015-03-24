@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TrainAssistant.Models;
 using System.Runtime.InteropServices;
+using System.Windows;
 
 namespace JasonLong.Helper
 {
@@ -125,44 +126,16 @@ namespace JasonLong.Helper
         }
 
         /// <summary>
-        /// 获取登录验证码图片并识别（自动提交订单验证码）
+        /// 获取登录验证码图片（自动提交订单验证码）
         /// </summary>
-        public Task<Dictionary<BitmapImage, string>> GetLoginCodeAsync()
+        public Task<BitmapImage> GetLoginCodeAsync()
         {
             return Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(100);
-                byte[] msbuffer = new byte[4096];
                 var url = ConfigurationManager.AppSettings["LoginValidateCodeImageUrl"].ToString() + "&rand=sjrand";
-                var data = httpHelper.GetResponseData(url);
-                int count = 0;
-                string strLoginCode = "";
-                BitmapImage loginCodeImg = new BitmapImage();//登录验证码图片
-                if (data != null)
-                {
-                    do
-                    {
-                        codeBuilder.Length = 0;
-                        if (BasicOCR.GetCodeFromBuffer(1, data, data.Length, codeBuilder))
-                        {
-                            strLoginCode = codeBuilder.ToString();
-                        }
-                        count++;
-                    } while (strLoginCode.Length != 4 && count < 10);
-                    using (MemoryStream ms = new MemoryStream(data, false))
-                    {
-                        loginCodeImg.BeginInit();
-                        loginCodeImg.StreamSource = ms;
-                        loginCodeImg.CacheOption = BitmapCacheOption.OnLoad;
-                        loginCodeImg.EndInit();
-                        loginCodeImg.Freeze();
-                    }
-                }
-                Dictionary<BitmapImage, string> dicLoginCode = new Dictionary<BitmapImage, string>()
-                {
-                    {loginCodeImg,strLoginCode}
-                };
-                return dicLoginCode;
+                var codeImg = httpHelper.GetCodeImage(url);
+                return codeImg;
             });
         }
 
@@ -1248,6 +1221,60 @@ namespace JasonLong.Helper
                 return cell;
             }
             return null;
+        }
+
+        /// <summary>
+        /// 合成图片（用于验证码选择合成）
+        /// </summary>
+        /// <param name="bgImagePath"></param>
+        /// <param name="headerImagePath"></param>
+        /// <param name="headerImgX"></param>
+        /// <param name="headerImgY"></param>
+        /// <param name="signature"></param>
+        /// <returns></returns>
+        public BitmapSource MakePicture(ImageSource bgImagePath, string headerImagePath, double headerImgX, double headerImgY, string signature)
+        {
+            //获取背景图
+            BitmapSource bgImage = bgImagePath as BitmapImage; //new BitmapImage(new Uri(bgImagePath, UriKind.Relative));
+            //获取头像
+            BitmapSource headerImage = new BitmapImage(new Uri(headerImagePath, UriKind.Relative));
+
+            //创建一个RenderTargetBitmap 对象，将WPF中的Visual对象输出
+            RenderTargetBitmap composeImage = new RenderTargetBitmap(bgImage.PixelWidth, bgImage.PixelHeight, bgImage.DpiX, bgImage.DpiY, PixelFormats.Default);
+
+            FormattedText signatureTxt = new FormattedText(signature,
+                                                   System.Globalization.CultureInfo.CurrentCulture,
+                                                   System.Windows.FlowDirection.LeftToRight,
+                                                   new Typeface(System.Windows.SystemFonts.MessageFontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal),
+                                                   50,
+                                                   System.Windows.Media.Brushes.White);
+
+            DrawingVisual drawingVisual = new DrawingVisual();
+            DrawingContext drawingContext = drawingVisual.RenderOpen();
+            drawingContext.DrawImage(bgImage, new Rect(0, 0, bgImage.Width, bgImage.Height));
+
+            //计算头像的位置
+            //double x = (bgImage.Width / 2 - headerImage.Width) / 2;
+            //double y = (bgImage.Height - headerImage.Height) / 2 - 100;
+            drawingContext.DrawImage(headerImage, new Rect(headerImgX, headerImgY, headerImage.Width, headerImage.Height));
+
+            //计算签名的位置
+            double x2 = (bgImage.Width / 2 - signatureTxt.Width) / 2;
+            double y2 = headerImgY + headerImage.Height + 20;
+            drawingContext.DrawText(signatureTxt, new System.Windows.Point(x2, y2));
+            drawingContext.Close();
+            composeImage.Render(drawingVisual);
+
+            //定义一个JPG编码器
+            JpegBitmapEncoder bitmapEncoder = new JpegBitmapEncoder();
+
+            //加入第一帧
+            bitmapEncoder.Frames.Add(BitmapFrame.Create(composeImage));
+
+            //保存至文件（不会修改源文件，将修改后的图片保存至程序目录下）
+            string savePath = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase + @"\code.jpg";
+            bitmapEncoder.Save(File.OpenWrite(Path.GetFileName(savePath)));
+            return composeImage;
         }
 
     }

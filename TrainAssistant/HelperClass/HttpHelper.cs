@@ -68,7 +68,7 @@ namespace JasonLong.Helper
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public BitmapImage GetResponseImage(string url)
+        public BitmapImage GetCodeImage(string url)
         {
             Uri uri = new Uri(url);
             BitmapImage bmp = new BitmapImage();
@@ -101,6 +101,7 @@ namespace JasonLong.Helper
                         count = stream.Read(buffer, 0, buffer.Length);
                         ms.Write(buffer, 0, count);
                     } while (count != 0);
+                    ms.Seek(0, SeekOrigin.Begin);
                     bmp.BeginInit();
                     bmp.StreamSource = ms;
                     bmp.CacheOption = BitmapCacheOption.OnLoad;
