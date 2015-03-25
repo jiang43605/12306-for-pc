@@ -80,12 +80,16 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
-                <Image Grid.ColumnSpan="2" Name="imgLoginCode" MouseUp="imgLoginCode_MouseUp" />
+                <Canvas Name="canvLoginCode" MouseLeftButtonUp="canvLoginCode_MouseLeftButtonUp" Grid.ColumnSpan="2" Width="293" Height="190">
+                    <Canvas.Background>
+                        <ImageBrush x:Name="imgLoginCode" Stretch="Fill" />
+                    </Canvas.Background>
+                </Canvas>
                 <TextBlock Grid.Row="1" Width="50" HorizontalAlignment="Left" Height="15" Margin="7 0 0 0">
                     <Hyperlink Name="linkChange">换一张？</Hyperlink>
                 </TextBlock>
                 <Button Name="btnCodeValidate" Style="{DynamicResource SquareButtonStyle}" Grid.Column="1" Grid.Row="1" Width="100" Height="30" HorizontalAlignment="Right" Margin="0 0 7 0" Content="验 证"/>
-                <Label Visibility="Visible" Name="lblLoginCode" Panel.ZIndex="-1"/>
+                <TextBox Visibility="Visible" Name="txtLoginCodes" Panel.ZIndex="-1"/>
             </Grid>
         </Border>
 

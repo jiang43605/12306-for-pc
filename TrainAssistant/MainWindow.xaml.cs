@@ -18,6 +18,7 @@ using Newtonsoft.Json.Linq;
 using TrainAssistant.Models;
 using System.Web;
 using System.Windows.Threading;
+using System.Windows.Media;
 
 namespace TrainAssistant
 {
@@ -164,7 +165,7 @@ namespace TrainAssistant
             }
             else
             {
-                imgLoginCode.Source = bitLoginCode;
+                imgLoginCode.ImageSource = bitLoginCode;
             }
             lblStatusMsg.Content = "获取验证码完成";
             progressRingAnima.IsActive = false;
@@ -1451,10 +1452,17 @@ namespace TrainAssistant
         }
 
         //登录：获取验证码
-        private void imgLoginCode_MouseUp(object sender, MouseButtonEventArgs e)
+        private void canvLoginCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition((IInputElement)sender);
-            imgLoginCode.Source = ticketHelper.MakePicture(imgLoginCode.Source, @"check.png", p.X, p.Y, "");
+            BitmapSource bitChkImg = new BitmapImage(new Uri(@"/Images/check.png", UriKind.Relative));
+            Image checkImg = new Image();
+            checkImg.Source = bitChkImg;
+            Canvas.SetLeft(checkImg, p.X);
+            Canvas.SetTop(checkImg, p.Y);
+            canvLoginCode.Children.Add(checkImg);
+            string codeXY = txtLoginCodes.Text + ',' + p.X + ',' + p.Y;
+            txtLoginCodes.Text = codeXY.TrimStart(',');
         }
 
     }
