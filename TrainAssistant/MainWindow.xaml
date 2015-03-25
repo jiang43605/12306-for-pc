@@ -51,8 +51,8 @@
                     <Hyperlink Name="linkForgotPassword" Click="linkForgotPassword_Click">忘记密码</Hyperlink>
                 </TextBlock>
                 <PasswordBox Name="txtPassword" Grid.Row="4" Grid.ColumnSpan="2" Height="30" VerticalContentAlignment="Center" Controls:TextBoxHelper.Watermark="输入密码" Controls:TextBoxHelper.ClearTextButton="True"/>
-                <CheckBox Grid.Row="5" Grid.Column="0" Height="15" Margin="7,0,0,0" Name="chkRemeberMe" VerticalContentAlignment="Center">记住密码</CheckBox>
-                <CheckBox Grid.Row="5" Grid.Column="1" Height="15" Margin="7,0,0,0" Name="chkAutoLogin" Click="chkAutoLogin_Click" VerticalContentAlignment="Center">自动登录</CheckBox>
+                <CheckBox Grid.Row="5" Grid.Column="0" Height="18" Margin="7,0,0,0" Name="chkRemeberMe" VerticalContentAlignment="Center">记住密码</CheckBox>
+                <CheckBox Grid.Row="5" Grid.Column="1" Height="18" Margin="7,0,0,0" Name="chkAutoLogin" Click="chkAutoLogin_Click" VerticalContentAlignment="Center">自动登录</CheckBox>
                 <Button Content="登录" Grid.Row="6" Grid.ColumnSpan="2" Name="btnLogin" Click="btnLogin_Click" Width="170" IsDefault="True" Style="{DynamicResource SquareButtonStyle}"/>
                 <Label Name="lblErrorMsg" Foreground="Red" Grid.ColumnSpan="2" Grid.Row="7" Height="30" VerticalContentAlignment="Center"></Label>
             </Grid>
@@ -86,10 +86,10 @@
                     </Canvas.Background>
                 </Canvas>
                 <TextBlock Grid.Row="1" Width="50" HorizontalAlignment="Left" Height="15" Margin="7 0 0 0">
-                    <Hyperlink Name="linkChange">换一张？</Hyperlink>
+                    <Hyperlink Name="linkChange" Click="linkChange_Click">换一张？</Hyperlink>
                 </TextBlock>
                 <Button Name="btnCodeValidate" Style="{DynamicResource SquareButtonStyle}" Grid.Column="1" Grid.Row="1" Width="100" Height="30" HorizontalAlignment="Right" Margin="0 0 7 0" Content="验 证"/>
-                <TextBox Visibility="Visible" Name="txtLoginCodes" Panel.ZIndex="-1"/>
+                <TextBox Visibility="Hidden" Name="txtLoginCodes" Panel.ZIndex="-1"/>
             </Grid>
         </Border>
 
@@ -358,13 +358,13 @@
                                     <ColumnDefinition Width="60"/>
                                     <ColumnDefinition Width="60"/>
                                 </Grid.ColumnDefinitions>
-                                <CheckBox Grid.Column="0" Name="chkAll" Content="全部" Tag="QB" Height="15" Click="chkAll_Click" IsChecked="True" />
-                                <CheckBox Grid.Column="1" Name="chkHSR" Content="高铁" Tag="G" Height="15" Click="chkHSR_Click" IsChecked="True" />
-                                <CheckBox Grid.Column="2" Name="chkEMU" Content="动车" Tag="D" Height="15" Click="chkEMU_Click" IsChecked="True" />
-                                <CheckBox Grid.Column="3" Name="chkZ" Content="Z-直达" Tag="Z" Height="15" Click="chkZ_Click" IsChecked="True" />
-                                <CheckBox Grid.Column="4" Name="chkT" Content="T-特快" Tag="T" Height="15" Click="chkT_Click" IsChecked="True" />
-                                <CheckBox Grid.Column="5" Name="chkK" Content="K-快速" Tag="K" Height="15" Click="chkK_Click" IsChecked="True" />
-                                <CheckBox Grid.Column="6" Name="chkOther" Content="其他" Tag="QT" Height="15" Click="chkOther_Click" IsChecked="True" />
+                                <CheckBox Grid.Column="0" Name="chkAll" Content="全部" Tag="QB" Height="18" Click="chkAll_Click" IsChecked="True" />
+                                <CheckBox Grid.Column="1" Name="chkHSR" Content="高铁" Tag="G" Height="18" Click="chkHSR_Click" IsChecked="True" />
+                                <CheckBox Grid.Column="2" Name="chkEMU" Content="动车" Tag="D" Height="18" Click="chkEMU_Click" IsChecked="True" />
+                                <CheckBox Grid.Column="3" Name="chkZ" Content="Z-直达" Tag="Z" Height="18" Click="chkZ_Click" IsChecked="True" />
+                                <CheckBox Grid.Column="4" Name="chkT" Content="T-特快" Tag="T" Height="18" Click="chkT_Click" IsChecked="True" />
+                                <CheckBox Grid.Column="5" Name="chkK" Content="K-快速" Tag="K" Height="18" Click="chkK_Click" IsChecked="True" />
+                                <CheckBox Grid.Column="6" Name="chkOther" Content="其他" Tag="QT" Height="18" Click="chkOther_Click" IsChecked="True" />
                             </Grid>
                         </Border>
                         <Border Grid.Column="5" Grid.Row="1" Grid.ColumnSpan="3">
@@ -374,8 +374,8 @@
                                     <ColumnDefinition Width="75"/>
                                     <ColumnDefinition Width="110"/>
                                 </Grid.ColumnDefinitions>
-                                <CheckBox Content="可预订" Height="15" Name="chkCanReservate" Click="chkCanReservate_Click" HorizontalAlignment="Right" Width="55" />
-                                <CheckBox Content="自动搜索" HorizontalAlignment="Right" Grid.Column="1" Name="chkAutoSearch" Click="chkAutoSearch_Click" Height="15" />
+                                <CheckBox Content="可预订" Height="18" Name="chkCanReservate" Click="chkCanReservate_Click" HorizontalAlignment="Right" Width="55" />
+                                <CheckBox Content="自动搜索" HorizontalAlignment="Right" Grid.Column="1" Name="chkAutoSearch" Click="chkAutoSearch_Click" Height="18" />
                                 <Button Style="{DynamicResource SquareButtonStyle}" Name="btnSearch" Grid.Column="2" Height="27" Content="搜  索" Width="100" HorizontalAlignment="Right" Click="btnSearch_Click" IsDefault="True" />
                             </Grid>
                         </Border>

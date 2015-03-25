@@ -18,7 +18,6 @@ using Newtonsoft.Json.Linq;
 using TrainAssistant.Models;
 using System.Web;
 using System.Windows.Threading;
-using System.Windows.Media;
 
 namespace TrainAssistant
 {
@@ -76,7 +75,6 @@ namespace TrainAssistant
                 loginPopup.Visibility = Visibility.Visible;
                 lblErrorMsg.Content = "";
                 lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["LoginRandomParamUrl"], false);
-                await GetValidateCodeImage();
                 List<Users> users = ticketHelper.ReadUser(accountFile);
                 if (users.Count > 0)
                 {
@@ -209,6 +207,7 @@ namespace TrainAssistant
             IsShowLoginPopup(false);
             gridOpacity.Visibility = Visibility.Visible;
             loginCodePopup.Visibility = Visibility.Visible;
+            await GetValidateCodeImage();
             //try
             //{
             //    lblErrorMsg.Content = await ticketHelper.Login(txtUserName.Text.Trim(), txtPassword.Password.Trim(), null, (bool)chkRemeberMe.IsChecked, (bool)chkAutoLogin.IsChecked, lblRandomParam.Tag.ToString());
@@ -1448,10 +1447,11 @@ namespace TrainAssistant
         private void btnCloseLoginCodePopup_Click(object sender, RoutedEventArgs e)
         {
             loginCodePopup.Visibility = Visibility.Hidden;
+            canvLoginCode.Children.Clear();
             loginPopup.Visibility = Visibility.Visible;
         }
 
-        //登录：获取验证码
+        //获取验证码（登录）
         private void canvLoginCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition((IInputElement)sender);
@@ -1463,6 +1463,13 @@ namespace TrainAssistant
             canvLoginCode.Children.Add(checkImg);
             string codeXY = txtLoginCodes.Text + ',' + p.X + ',' + p.Y;
             txtLoginCodes.Text = codeXY.TrimStart(',');
+        }
+
+        //刷新验证码（登录）
+        private async void linkChange_Click(object sender, RoutedEventArgs e)
+        {
+            canvLoginCode.Children.Clear();
+            await GetValidateCodeImage();
         }
 
     }
