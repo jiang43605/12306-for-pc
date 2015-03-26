@@ -28,6 +28,7 @@ namespace TrainAssistant
     {
 
         TicketHelper ticketHelper = new TicketHelper();
+        DataSecurity dsecurity = new DataSecurity();
         public const string accountFile = "Account";//登录用户信息
         string seatTypes = "";//席别
         private const string purposeCode = "ADULT";
@@ -204,6 +205,37 @@ namespace TrainAssistant
             progressRingAnima.IsActive = true;
             lblStatusMsg.Content = "正在登录...";
             btnLogin.IsEnabled = false;
+            List<Users> users = ticketHelper.ReadUser(accountFile);
+            var u = (from p in users
+                     where p.Name == txtUserName.Text && p.Password == txtPassword.Password
+                     select p).FirstOrDefault<Users>();
+            if (u == null)
+            {
+                if ((bool)chkRemeberMe.IsChecked)
+                {
+                    users.Add(new Users() { Name = txtUserName.Text, Password = txtPassword.Password, IsAutoLogin = (bool)chkAutoLogin.IsChecked });
+                }
+            }
+            else
+            {
+                u.IsAutoLogin = (bool)chkAutoLogin.IsChecked;
+                u.Password = txtPassword.Password;
+                if (!(bool)chkRemeberMe.IsChecked)
+                {
+                    users.Remove(u);
+                }
+            }
+            JObject obj = new JObject(
+                new JProperty("users", new JArray(
+                    from j in users
+                    select new JObject(
+                        new JProperty("name", j.Name),
+                        new JProperty("password", dsecurity.Encrypto(j.Password)),
+                        new JProperty("isAutoLogin", j.IsAutoLogin)
+                        )
+                    ))
+                );
+            ticketHelper.SaveFile(accountFile, obj.ToString());
             IsShowLoginPopup(false);
             gridOpacity.Visibility = Visibility.Visible;
             loginCodePopup.Visibility = Visibility.Visible;
@@ -1455,14 +1487,22 @@ namespace TrainAssistant
         private void canvLoginCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition((IInputElement)sender);
-            BitmapSource bitChkImg = new BitmapImage(new Uri(@"/Images/check.png", UriKind.Relative));
+            BitmapSource bitChkImg = new BitmapImage(new Uri(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "/Images/check.png", UriKind.Relative));
             Image checkImg = new Image();
+            checkImg.ToolTip = "右击取消选择";
             checkImg.Source = bitChkImg;
-            Canvas.SetLeft(checkImg, p.X);
-            Canvas.SetTop(checkImg, p.Y);
+            checkImg.MouseRightButtonUp += checkImg_MouseRightButtonUp;
+            Canvas.SetLeft(checkImg, p.X - bitChkImg.Width / 2);
+            Canvas.SetTop(checkImg, p.Y - bitChkImg.Height / 2);
             canvLoginCode.Children.Add(checkImg);
             string codeXY = txtLoginCodes.Text + ',' + p.X + ',' + p.Y;
             txtLoginCodes.Text = codeXY.TrimStart(',');
+        }
+
+        //右击图片撤销选择
+        void checkImg_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            canvLoginCode.Children.Remove((Image)sender);
         }
 
         //刷新验证码（登录）
