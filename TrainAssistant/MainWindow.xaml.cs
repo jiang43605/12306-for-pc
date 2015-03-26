@@ -85,6 +85,13 @@ namespace TrainAssistant
                     txtUserName.SelectedIndex = 0;
                 }
 
+                if ((bool)chkAutoLogin.IsChecked)
+                {
+                    //自动登录
+                    loginPopup.Visibility = Visibility.Hidden;
+                    loginCodePopup.Visibility = Visibility.Visible;
+                    await GetValidateCodeImage();
+                }
             }
             else
             {
@@ -240,6 +247,7 @@ namespace TrainAssistant
             gridOpacity.Visibility = Visibility.Visible;
             loginCodePopup.Visibility = Visibility.Visible;
             await GetValidateCodeImage();
+
             //try
             //{
             //    lblErrorMsg.Content = await ticketHelper.Login(txtUserName.Text.Trim(), txtPassword.Password.Trim(), null, (bool)chkRemeberMe.IsChecked, (bool)chkAutoLogin.IsChecked, lblRandomParam.Tag.ToString());
