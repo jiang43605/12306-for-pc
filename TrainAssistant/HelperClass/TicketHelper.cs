@@ -190,7 +190,7 @@ namespace JasonLong.Helper
                 {
                     url = "https://kyfw.12306.cn/otn/dynamicJs/" + result;
                     result = httpHelper.GetResponseChartByGET(url);
-                    var random = Regex.Match(result, @"var\s+key='(?<random>[^']+)';", RegexOptions.Singleline, TimeSpan.FromSeconds(10));
+                    var random = Regex.Match(result, @"function\s+gc\(\){var\s+(?<randomKey>[^']+)='(?<random>[^']+)';", RegexOptions.Singleline, TimeSpan.FromSeconds(10));
                     var ajaxJs = Regex.Match(result, @"url\s+:'/otn/dynamicJs/(?<ajaxJs>[^']+)',", RegexOptions.Singleline, TimeSpan.FromSeconds(10));
                     if (random.Success)
                     {
@@ -218,20 +218,19 @@ namespace JasonLong.Helper
         /// <param name="isRemeberMe"></param>
         /// <param name="isAutoLogin"></param>
         /// <returns></returns>
-        public Task<string> Login(string userName, string password, string code, bool isRemeberMe, bool isAutoLogin, string loginRandomKey)
+        public Task<string> Login(string userName, string password, string code, string loginRandomKey)
         {
             return Task.Factory.StartNew(() =>
             {
+                Thread.Sleep(100);
                 string result = "", url = ConfigurationManager.AppSettings["LoginUrl"].ToString();
                 string loginrandomValue = JSFunctionHelper.GetRandomParamCodes(loginRandomKey, "1111");
                 Dictionary<string, string> param = new Dictionary<string, string>();
                 param.Add("loginUserDTO.user_name", userName);//用户名
                 param.Add("userDTO.password", password);//密码
                 param.Add("randCode", code);//验证码
-                param.Add("randCode_validate", "");
                 param.Add(loginRandomKey, loginrandomValue);
                 param.Add("myversion", "undefined");
-                Thread.Sleep(100);
                 result = httpHelper.GetResponseByPOST(url, param);
                 if (result != "")
                 {
@@ -249,33 +248,6 @@ namespace JasonLong.Helper
                         {
                             url = ConfigurationManager.AppSettings["GetLoginUserNameUrl"].ToString();
                             result = httpHelper.GetResponseChartByGET(url);
-                            if (isRemeberMe)
-                            {
-                                List<Users> users = ReadUser(accountFile);
-                                var u = (from p in users
-                                         where p.Name == userName && p.Password == dsecurity.Encrypto(password)
-                                         select p).FirstOrDefault<Users>();
-                                if (u == null)
-                                {
-                                    users.Add(new Users() { Name = userName, Password = password, IsAutoLogin = isAutoLogin });
-                                }
-                                else
-                                {
-                                    u.IsAutoLogin = isAutoLogin;
-                                    u.Password = password;
-                                }
-                                JObject obj = new JObject(
-                                    new JProperty("users", new JArray(
-                                        from j in users
-                                        select new JObject(
-                                            new JProperty("name", j.Name),
-                                            new JProperty("password", dsecurity.Encrypto(j.Password)),
-                                            new JProperty("isAutoLogin", j.IsAutoLogin)
-                                            )
-                                        ))
-                                    );
-                                SaveFile(accountFile, obj.ToString());
-                            }
                             try
                             {
                                 var name = Regex.Match(result, @"var\s+sessionInit\s*=\s*'(?<name>[^']+)';", RegexOptions.Singleline, TimeSpan.FromSeconds(10));

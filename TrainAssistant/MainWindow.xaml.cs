@@ -74,7 +74,6 @@ namespace TrainAssistant
                 btnLogout.Visibility = Visibility.Hidden;
                 gridOpacity.Visibility = Visibility.Visible;
                 loginPopup.Visibility = Visibility.Visible;
-                lblErrorMsg.Content = "";
                 lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["LoginRandomParamUrl"], false);
                 List<Users> users = ticketHelper.ReadUser(accountFile);
                 if (users.Count > 0)
@@ -201,12 +200,12 @@ namespace TrainAssistant
         {
             if (txtUserName.Text.Trim() == "")
             {
-                lblErrorMsg.Content = "用户名不能为空";
+                lblStatusMsg.Content = "用户名不能为空";
                 return;
             }
             if (txtPassword.Password.Trim() == "")
             {
-                lblErrorMsg.Content = "密码不能为空";
+                lblStatusMsg.Content = "密码不能为空";
                 return;
             }
             progressRingAnima.IsActive = true;
@@ -247,45 +246,6 @@ namespace TrainAssistant
             gridOpacity.Visibility = Visibility.Visible;
             loginCodePopup.Visibility = Visibility.Visible;
             await GetValidateCodeImage();
-
-            //try
-            //{
-            //    lblErrorMsg.Content = await ticketHelper.Login(txtUserName.Text.Trim(), txtPassword.Password.Trim(), null, (bool)chkRemeberMe.IsChecked, (bool)chkAutoLogin.IsChecked, lblRandomParam.Tag.ToString());
-            //}
-            //catch (Exception)
-            //{
-            //    lblErrorMsg.Content = "未知错误";
-            //    lblStatusMsg.Content = "登录失败";
-            //    btnLogin.IsEnabled = true;
-            //    progressRingAnima.IsActive = false;
-            //}
-            //string loginName = lblErrorMsg.Content.ToString();
-            //if (loginName.IndexOf("登录成功") > 0)
-            //{
-            //    IsShowLoginPopup(false);
-            //    lblLoginName.Text = "欢迎，" + loginName.Substring(0, loginName.IndexOf("登录成功"));
-            //    lblStatusMsg.Content = loginName.Substring(loginName.IndexOf("登录成功"));
-            //    //初始化查询条件
-            //    string strUser = lblLoginName.Text.Substring(lblLoginName.Text.IndexOf('，') + 1);
-            //    var lstQuerys = await ticketHelper.ReadQuerys("Query");
-            //    var query = (from q in lstQuerys
-            //                 where q.User == strUser
-            //                 select q).FirstOrDefault<Query>();
-            //    if (query != null)
-            //    {
-            //        txtStartCity.Text = query.FromName.ToString();
-            //        txtStartCity.SelectedValue = query.FromCode.ToString();
-            //        txtEndCity.Text = query.ToName.ToString();
-            //        txtEndCity.SelectedValue = query.ToCode.ToString();
-            //        txtDate.Text = query.Date.ToString();
-            //    }
-            //    lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["QueryRandomParamUrl"],false);
-            //}
-            //else
-            //{
-            //    lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["LoginRandomParamUrl"], false);
-            //    await GetValidateCodeImage();
-            //}
             btnLogin.IsEnabled = true;
             progressRingAnima.IsActive = false;
         }
@@ -1518,6 +1478,49 @@ namespace TrainAssistant
         {
             canvLoginCode.Children.Clear();
             await GetValidateCodeImage();
+        }
+
+        //验证并登录
+        private async void btnCodeValidate_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                lblStatusMsg.Content = await ticketHelper.Login(txtUserName.Text.Trim(), txtPassword.Password.Trim(), txtLoginCodes.Text, lblRandomParam.Tag.ToString());
+            }
+            catch (Exception)
+            {
+                lblStatusMsg.Content = "登录失败";
+                btnLogin.IsEnabled = true;
+                progressRingAnima.IsActive = false;
+            }
+            string loginName = lblStatusMsg.Content.ToString();
+            if (loginName.IndexOf("登录成功") > 0)
+            {
+                IsShowLoginPopup(false);
+                loginCodePopup.Visibility = Visibility.Hidden;
+                lblLoginName.Text = "欢迎，" + loginName.Substring(0, loginName.IndexOf("登录成功"));
+                lblStatusMsg.Content = loginName.Substring(loginName.IndexOf("登录成功"));
+                //初始化查询条件
+                string strUser = lblLoginName.Text.Substring(lblLoginName.Text.IndexOf('，') + 1);
+                var lstQuerys = await ticketHelper.ReadQuerys("Query");
+                var query = (from q in lstQuerys
+                             where q.User == strUser
+                             select q).FirstOrDefault<Query>();
+                if (query != null)
+                {
+                    txtStartCity.Text = query.FromName.ToString();
+                    txtStartCity.SelectedValue = query.FromCode.ToString();
+                    txtEndCity.Text = query.ToName.ToString();
+                    txtEndCity.SelectedValue = query.ToCode.ToString();
+                    txtDate.Text = query.Date.ToString();
+                }
+                lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["QueryRandomParamUrl"], false);
+            }
+            else
+            {
+                lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["LoginRandomParamUrl"], false);
+                await GetValidateCodeImage();
+            }
         }
 
     }
