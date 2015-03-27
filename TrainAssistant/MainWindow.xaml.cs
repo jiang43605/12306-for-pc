@@ -94,7 +94,6 @@ namespace TrainAssistant
             }
             else
             {
-                btnLogout.Visibility = Visibility.Visible;
                 gridOpacity.Visibility = Visibility.Hidden;
                 loginPopup.Visibility = Visibility.Hidden;
             }
@@ -1446,6 +1445,7 @@ namespace TrainAssistant
         //关闭登录验证码对话框
         private void btnCloseLoginCodePopup_Click(object sender, RoutedEventArgs e)
         {
+            txtLoginCodes.Text = "";
             loginCodePopup.Visibility = Visibility.Hidden;
             canvLoginCode.Children.Clear();
             loginPopup.Visibility = Visibility.Visible;
@@ -1459,18 +1459,31 @@ namespace TrainAssistant
             Image checkImg = new Image();
             checkImg.ToolTip = "右击取消选择";
             checkImg.Source = bitChkImg;
+            checkImg.Tag = p.X + "," + p.Y;
             checkImg.MouseRightButtonUp += checkImg_MouseRightButtonUp;
             Canvas.SetLeft(checkImg, p.X - bitChkImg.Width / 2);
             Canvas.SetTop(checkImg, p.Y - bitChkImg.Height / 2);
             canvLoginCode.Children.Add(checkImg);
             string codeXY = txtLoginCodes.Text + ',' + p.X + ',' + p.Y;
             txtLoginCodes.Text = codeXY.TrimStart(',');
+            MessageBox.Show(txtLoginCodes.Text);
         }
 
         //右击图片撤销选择
         void checkImg_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            canvLoginCode.Children.Remove((Image)sender);
+            var imgCheck = sender as Image;
+            string strChecks = txtLoginCodes.Text.Replace(imgCheck.Tag.ToString(), "");
+            txtLoginCodes.Text = "";
+            string strChkCodes = "";
+            var arrChecks = strChecks.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var item in arrChecks)
+            {
+                strChkCodes += item + ',';
+            }
+            strChkCodes = strChkCodes.Trim(',');
+            txtLoginCodes.Text = strChkCodes;
+            canvLoginCode.Children.Remove(imgCheck);
         }
 
         //刷新验证码（登录）
@@ -1478,6 +1491,7 @@ namespace TrainAssistant
         {
             canvLoginCode.Children.Clear();
             await GetValidateCodeImage();
+            txtLoginCodes.Text = "";
         }
 
         //验证并登录
@@ -1497,6 +1511,7 @@ namespace TrainAssistant
             if (loginName.IndexOf("登录成功") > 0)
             {
                 IsShowLoginPopup(false);
+                btnLogout.Visibility = Visibility.Visible;
                 loginCodePopup.Visibility = Visibility.Hidden;
                 lblLoginName.Text = "欢迎，" + loginName.Substring(0, loginName.IndexOf("登录成功"));
                 lblStatusMsg.Content = loginName.Substring(loginName.IndexOf("登录成功"));
