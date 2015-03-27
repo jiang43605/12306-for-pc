@@ -1466,7 +1466,6 @@ namespace TrainAssistant
             canvLoginCode.Children.Add(checkImg);
             string codeXY = txtLoginCodes.Text + ',' + p.X + ',' + p.Y;
             txtLoginCodes.Text = codeXY.TrimStart(',');
-            MessageBox.Show(txtLoginCodes.Text);
         }
 
         //右击图片撤销选择
@@ -1534,7 +1533,9 @@ namespace TrainAssistant
             else
             {
                 lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["LoginRandomParamUrl"], false);
+                canvLoginCode.Children.Clear();
                 await GetValidateCodeImage();
+                txtLoginCodes.Text = "";
             }
         }
 
