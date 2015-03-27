@@ -182,9 +182,8 @@ namespace TrainAssistant
         {
             progressRingAnima.IsActive = true;
             lblStatusMsg.Content = "获取订单验证码中...";
-            Dictionary<BitmapImage, string> dicOrderCode = await ticketHelper.GetSubmitOrderCode();
-            imgOrderCode.Source = dicOrderCode.Keys.First();
-            txtOrderCode.Text = dicOrderCode.Values.First();
+            BitmapImage bitOrderCode = await ticketHelper.GetSubmitOrderCode();
+            imgSubmitOrderCode.ImageSource = bitOrderCode;
             progressRingAnima.IsActive = false;
         }
 
@@ -379,7 +378,6 @@ namespace TrainAssistant
                     var arrRandoms = submitOrderRandoms.Split('⊗');
                     lblRandomParam.Tag = arrRandoms[0];
                     lblSecretStr.Content = await ticketHelper.GetSubmitOrderToken(arrRandoms[1]);
-                    await GetOrderCode();
                     progressRingAnima.IsActive = false;
                     lblStatusMsg.Content = "订单信息初始化完成";
                 }
@@ -724,7 +722,7 @@ namespace TrainAssistant
                 {
                     gContacts.RowDefinitions.Add(new RowDefinition()
                     {
-                        Height = new GridLength(15)
+                        Height = new GridLength(18)
                     });
                 }
                 while (cell-- > 0)
@@ -743,7 +741,7 @@ namespace TrainAssistant
                         {
                             Content = contacts[i].PassengerName,
                             Name = "chk" + contacts[i].Code,
-                            Height = 15,
+                            Height = 18,
                             Tag = contacts[i].PassengerTypeName + "#" + contacts[i].PassengerName + "#" + contacts[i].PassengerIdTypeName + "#" + contacts[i].PassengerIdNo + "#" + contacts[i].Mobile
                         };
                         chkContact.Click += chkContact_Click;
@@ -875,12 +873,6 @@ namespace TrainAssistant
             await SearchTickets();
         }
 
-        //更换订单验证码
-        private async void imgOrderCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            await GetOrderCode();
-        }
-
         //提交
         private async void btnSubmit_Click(object sender, RoutedEventArgs e)
         {
@@ -889,29 +881,9 @@ namespace TrainAssistant
                 lblStatusMsg.Content = "未选择乘客";
                 return;
             }
-            if (txtOrderCode.Text.Trim() == "")
-            {
-                lblStatusMsg.Content = "验证码不能为空";
-                return;
-            }
-            if (txtOrderCode.Text.Trim().Length < 4 || txtOrderCode.Text.Trim().Length > 4)
-            {
-                lblStatusMsg.Content = "验证码长度为4位";
-                return;
-            }
-            var lstPassengers = gridPassenger.ItemsSource as List<SubmitOrder>;
-            progressRingAnima.IsActive = true;
-            List<string> lstQueues = new List<string>();
-            var arrQueues = lblTicket.Tag.ToString().Split(',');
-            for (int i = 0; i < arrQueues.Length; i++)
-            {
-                lstQueues.Add(arrQueues[i]);
-            }
-            var arrToken = lblSecretStr.Content.ToString().Split(',');
-            string orderResult = await SubmitOrder(lstPassengers, txtOrderCode.Text, arrToken[0], lstQueues, arrToken[1]);
-            lblStatusMsg.Content = orderResult;
-            MessageBox.Show(orderResult, "提示", MessageBoxButton.OK, MessageBoxImage.Information);
-            progressRingAnima.IsActive = false;
+            orderPopup.Visibility = Visibility.Hidden;
+            submitOrderCodePopup.Visibility = Visibility.Visible;
+            await GetOrderCode();
         }
 
         /// <summary>
@@ -1468,7 +1440,7 @@ namespace TrainAssistant
             txtLoginCodes.Text = codeXY.TrimStart(',');
         }
 
-        //右击图片撤销选择
+        //右击图片撤销选择（登录）
         void checkImg_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             var imgCheck = sender as Image;
@@ -1537,6 +1509,86 @@ namespace TrainAssistant
                 await GetValidateCodeImage();
                 txtLoginCodes.Text = "";
             }
+        }
+
+        //关闭提交订单验证码对话框
+        private void btnCloseSubmitOrderCodePopup_Click(object sender, RoutedEventArgs e)
+        {
+            txtSubmitOrderCodes.Text = "";
+            submitOrderCodePopup.Visibility = Visibility.Hidden;
+            canvSubmitOrderCode.Children.Clear();
+            orderPopup.Visibility = Visibility.Visible;
+        }
+
+        //获取验证码（提交订单）
+        private void canvSubmitOrderCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Point p = e.GetPosition((IInputElement)sender);
+            BitmapSource bitChkImg = new BitmapImage(new Uri(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "/Images/check.png", UriKind.Relative));
+            Image checkOrderImg = new Image();
+            checkOrderImg.ToolTip = "右击取消选择";
+            checkOrderImg.Source = bitChkImg;
+            checkOrderImg.Tag = p.X + "," + p.Y;
+            checkOrderImg.MouseRightButtonUp += checkOrderImg_MouseRightButtonUp;
+            Canvas.SetLeft(checkOrderImg, p.X - bitChkImg.Width / 2);
+            Canvas.SetTop(checkOrderImg, p.Y - bitChkImg.Height / 2);
+            canvSubmitOrderCode.Children.Add(checkOrderImg);
+            string codeXY = txtSubmitOrderCodes.Text + ',' + p.X + ',' + p.Y;
+            txtSubmitOrderCodes.Text = codeXY.TrimStart(',');
+        }
+
+        //右击取消选择（提交订单）
+        void checkOrderImg_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var imgCheck = sender as Image;
+            string strChecks = txtSubmitOrderCodes.Text.Replace(imgCheck.Tag.ToString(), "");
+            txtSubmitOrderCodes.Text = "";
+            string strChkCodes = "";
+            var arrChecks = strChecks.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var item in arrChecks)
+            {
+                strChkCodes += item + ',';
+            }
+            strChkCodes = strChkCodes.Trim(',');
+            txtSubmitOrderCodes.Text = strChkCodes;
+            canvSubmitOrderCode.Children.Remove(imgCheck);
+        }
+
+        //刷新验证码（提交订单）
+        private async void linkSubmitOrderCodeChange_Click(object sender, RoutedEventArgs e)
+        {
+            txtSubmitOrderCodes.Text = "";
+            canvSubmitOrderCode.Children.Clear();
+            await GetOrderCode();
+        }
+
+        //验证并提交验证码
+        private async void btnSubmitOrderCodeValidate_Click(object sender, RoutedEventArgs e)
+        {
+            progressRingAnima.IsActive = true;
+            var lstPassengers = gridPassenger.ItemsSource as List<SubmitOrder>;
+            List<string> lstQueues = new List<string>();
+            var arrQueues = lblTicket.Tag.ToString().Split(',');
+            for (int i = 0; i < arrQueues.Length; i++)
+            {
+                lstQueues.Add(arrQueues[i]);
+            }
+            var arrToken = lblSecretStr.Content.ToString().Split(',');
+            string orderResult = await SubmitOrder(lstPassengers, txtSubmitOrderCodes.Text, arrToken[0], lstQueues, arrToken[1]);
+            lblStatusMsg.Content = orderResult;
+            if ("网络繁忙请卸载三方插件错误".Contains(orderResult))
+            {
+                string submitOrderRandoms = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["OrderTokenUrl"], true);
+                var arrRandoms = submitOrderRandoms.Split('⊗');
+                lblRandomParam.Tag = arrRandoms[0];
+                lblSecretStr.Content = await ticketHelper.GetSubmitOrderToken(arrRandoms[1]);
+
+                txtSubmitOrderCodes.Text = "";
+                canvSubmitOrderCode.Children.Clear();
+                await GetOrderCode();
+            }
+            MessageBox.Show(orderResult, "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+            progressRingAnima.IsActive = false;
         }
 
     }

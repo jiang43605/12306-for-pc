@@ -140,38 +140,6 @@ namespace JasonLong.Helper
         }
 
         /// <summary>
-        /// 判断登录验证码是否输入正确
-        /// </summary>
-        /// <param name="code"></param>
-        /// <returns></returns>
-        public Task<string> ValidateLoginCode(string code)
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                Thread.Sleep(100);
-                string url = ConfigurationManager.AppSettings["LoginCodeValidateUrl"].ToString(), result = "";
-                Dictionary<string, string> param = new Dictionary<string, string>();
-                param.Add("randCode", code);
-                param.Add("rand", "sjrand");
-                string valiresult = httpHelper.GetResponseByPOST(url, param);
-                if (valiresult != "")
-                {
-                    JObject json = JObject.Parse(valiresult);
-                    result = json["data"].ToString();
-                    if (result == "N")
-                    {
-                        result = "验证码错误";
-                    }
-                    else
-                    {
-                        result = "";
-                    }
-                }
-                return result;
-            });
-        }
-
-        /// <summary>
         /// 获取随机参数名
         /// </summary>
         /// <param name="url"></param>
@@ -759,42 +727,14 @@ namespace JasonLong.Helper
         /// 获取提交订单验证码并识别
         /// </summary>
         /// <returns></returns>
-        public Task<Dictionary<BitmapImage, string>> GetSubmitOrderCode()
+        public Task<BitmapImage> GetSubmitOrderCode()
         {
             return Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(100);
                 var url = ConfigurationManager.AppSettings["OrderSubmitCodeUrl"] + "&rand=randp";
-                var data = httpHelper.GetResponseData(url);
-                BitmapImage orderCodeImg = new BitmapImage();
-                string strOrderCode = "";
-                int count = 0;
-                if (data != null)
-                {
-                    do
-                    {
-                        codeBuilder.Length = 0;
-                        if (BasicOCR.GetCodeFromBuffer(1, data, data.Length, codeBuilder))
-                        {
-                            strOrderCode = codeBuilder.ToString();
-                        }
-                        count++;
-
-                    } while (strOrderCode.Length != 4 && count < 10);
-                    using (MemoryStream ms = new MemoryStream(data))
-                    {
-                        orderCodeImg.BeginInit();
-                        orderCodeImg.StreamSource = ms;
-                        orderCodeImg.CacheOption = BitmapCacheOption.OnLoad;
-                        orderCodeImg.EndInit();
-                        orderCodeImg.Freeze();
-                    }
-                }
-                Dictionary<BitmapImage, string> dicOrderCode = new Dictionary<BitmapImage, string>()
-                {
-                    {orderCodeImg,strOrderCode}
-                };
-                return dicOrderCode;
+                BitmapImage orderCodeImg = httpHelper.GetCodeImage(url);
+                return orderCodeImg;
             });
         }
 

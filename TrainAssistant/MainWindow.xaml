@@ -21,9 +21,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="27"/>
         </Grid.RowDefinitions>
-
-        <!--登录弹出层-->
         <Grid Background="#000" Opacity="0.5" Visibility="Hidden" Name="gridOpacity" Grid.Row="0" Panel.ZIndex="1" />
+        <!--登录弹出层-->
         <Border Name="loginPopup" Grid.RowSpan="2" Visibility="Hidden" Width="293" Height="260" Background="#fff" Padding="17" Grid.Row="0" Panel.ZIndex="2">
             <Grid>
                 <Grid.RowDefinitions>
@@ -55,7 +54,6 @@
                 <Button Content="登录" Grid.Row="6" Grid.ColumnSpan="2" Name="btnLogin" Click="btnLogin_Click" Width="170" IsDefault="True" Style="{DynamicResource SquareButtonStyle}"/>
             </Grid>
         </Border>
-        
         <!--登录验证码-->
         <Border Name="loginCodePopup" Background="#fff" Panel.ZIndex="2" Width="293" Height="230" Grid.RowSpan="2" Visibility="Hidden">
             <Grid>
@@ -199,19 +197,41 @@
                         </DataGrid>
                     </GroupBox>
                 </Border>
-                <Border Grid.Row="4">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.*"/>
-                            <ColumnDefinition Width="2.*"/>
-                            <ColumnDefinition Width="1.*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label Content="验证码（_W）：" HorizontalAlignment="Right" VerticalAlignment="Center" Target="{Binding ElementName=txtOrderCode}"/>
-                        <TextBox Name="txtOrderCode" Controls:TextBoxHelper.ClearTextButton="True" Grid.Column="1" Controls:TextBoxHelper.Watermark="输入验证码" VerticalContentAlignment="Center" Height="27"/>
-                        <Image Name="imgOrderCode" Grid.Column="2" Width="70" Height="27" Cursor="Hand" ToolTip="单击更换验证码" MouseLeftButtonUp="imgOrderCode_MouseLeftButtonUp" />
-                    </Grid>
-                </Border>
                 <Button Grid.Row="4" Grid.Column="1" Width="110" Content="提 交" Click="btnSubmit_Click" Height="27" Name="btnSubmit" Style="{DynamicResource SquareButtonStyle}" />
+            </Grid>
+        </Border>
+        <!--提交订单验证码-->
+        <Border Name="submitOrderCodePopup" Background="#fff" Panel.ZIndex="2" Width="293" Height="230" Grid.RowSpan="2" Visibility="Hidden">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="190" />
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.*"/>
+                    <ColumnDefinition Width="1.*"/>
+                </Grid.ColumnDefinitions>
+                <Button Width="25" Height="25" Name="btnCloseSubmitOrderCodePopup" ToolTip="关闭" Cursor="Hand" Margin="0 -13 -13 0" VerticalAlignment="Top" HorizontalAlignment="Right" Grid.ColumnSpan="2" Panel.ZIndex="2" Click="btnCloseSubmitOrderCodePopup_Click">
+                    <Button.Template>
+                        <ControlTemplate>
+                            <Ellipse>
+                                <Ellipse.Fill>
+                                    <ImageBrush ImageSource="/Images/close.png"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Canvas Name="canvSubmitOrderCode" MouseLeftButtonUp="canvSubmitOrderCode_MouseLeftButtonUp" Grid.ColumnSpan="2" Width="293" Height="190">
+                    <Canvas.Background>
+                        <ImageBrush x:Name="imgSubmitOrderCode" Stretch="Fill" />
+                    </Canvas.Background>
+                </Canvas>
+                <TextBlock Grid.Row="1" Width="50" HorizontalAlignment="Left" Height="15" Margin="7 0 0 0">
+                    <Hyperlink Name="linkSubmitOrderCodeChange" Click="linkSubmitOrderCodeChange_Click">换一张？</Hyperlink>
+                </TextBlock>
+                <Button Name="btnSubmitOrderCodeValidate" Style="{DynamicResource SquareButtonStyle}" Grid.Column="1" Grid.Row="1" Width="100" Height="30" HorizontalAlignment="Right" Margin="0 0 7 0" Content="验 证" Click="btnSubmitOrderCodeValidate_Click"/>
+                <TextBox Visibility="Hidden" Name="txtSubmitOrderCodes" Panel.ZIndex="-1"/>
             </Grid>
         </Border>
         
