@@ -1587,6 +1587,13 @@ namespace TrainAssistant
                 canvSubmitOrderCode.Children.Clear();
                 await GetOrderCode();
             }
+            else
+            {
+                //下单成功
+                orderPopup.Visibility = Visibility.Hidden;
+                submitOrderCodePopup.Visibility = Visibility.Hidden;
+                tabItems.SelectedIndex = 2;
+            }
             MessageBox.Show(orderResult, "提示", MessageBoxButton.OK, MessageBoxImage.Information);
             progressRingAnima.IsActive = false;
         }
