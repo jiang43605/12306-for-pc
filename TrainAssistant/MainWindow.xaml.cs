@@ -1578,9 +1578,9 @@ namespace TrainAssistant
             checAutokOrderImg.MouseRightButtonUp += checAutokOrderImg_MouseRightButtonUp;
             Canvas.SetLeft(checAutokOrderImg, p.X - bitChkImg.Width / 2);
             Canvas.SetTop(checAutokOrderImg, p.Y - bitChkImg.Height / 2);
-            canvSubmitOrderCode.Children.Add(checAutokOrderImg);
-            string codeXY = txtSubmitOrderCodes.Text + ',' + p.X + ',' + p.Y;
-            txtSubmitOrderCodes.Text = codeXY.TrimStart(',');
+            canvAutoSubmitOrderCode.Children.Add(checAutokOrderImg);
+            string codeXY = txtAutoSubmitOrderCodes.Text + ',' + p.X + ',' + p.Y;
+            txtAutoSubmitOrderCodes.Text = codeXY.TrimStart(',');
         }
 
         //右击取消选择（自动提交订单）
