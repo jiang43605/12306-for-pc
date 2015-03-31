@@ -59,15 +59,5 @@ namespace TrainAssistant.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] data {
-            get {
-                object obj = ResourceManager.GetObject("data", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
     }
 }

@@ -45,14 +45,7 @@ namespace TrainAssistant
                 txtDate.DisplayDateStart = DateTime.Now;
                 txtDate.DisplayDateEnd = DateTime.Now.AddDays(59);
                 txtDate.Text = txtDate.DisplayDateEnd.Value.ToString("yyyy-MM-dd");
-
                 IsShowLoginPopup(true);
-
-                byte[] buffter = TrainAssistant.Properties.Resources.data;
-                if (!BasicOCR.LoadLibFromBuffer(buffter, buffter.Length, "123"))
-                {
-                    MessageBox.Show("API初始化失败！");
-                }
             }
             else
             {
@@ -1611,7 +1604,7 @@ namespace TrainAssistant
         //验证并提交（自动提交订单）
         private async void btnAutoSubmitOrderCodeValidate_Click(object sender, RoutedEventArgs e)
         {
-            Dictionary<bool, string> dicResult = await ticketHelper.ConfirmOrderForAutoQueue(lblPassengers.Tag.ToString(), lblPassengers.Uid.ToString(), null, lblAutoIsChange.Tag.ToString(), lblAutoIsChange.Uid.ToString(), lblAutoIsChange.Content.ToString());
+            Dictionary<bool, string> dicResult = await ticketHelper.ConfirmOrderForAutoQueue(lblPassengers.Tag.ToString(), lblPassengers.Uid.ToString(), txtAutoSubmitOrderCodes.Text, lblAutoIsChange.Tag.ToString(), lblAutoIsChange.Uid.ToString(), lblAutoIsChange.Content.ToString());
             if (!dicResult.Keys.First())
             {
                 MessageBox.Show(dicResult.Values.First(), "消息");

@@ -100,29 +100,14 @@
     <Compile Include="Models\QueryOrderWaitTime.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Window1.xaml.cs">
-      <DependentUpon>Window1.xaml</DependentUpon>
-    </Compile>
-    <Page Include="CodeOCRDemo.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CodeOCRDemo.xaml.cs">
-      <DependentUpon>CodeOCRDemo.xaml</DependentUpon>
-    </Compile>
     <Compile Include="HelperClass\HttpHelper.cs" />
     <Compile Include="HelperClass\DataSecurity.cs" />
-    <Compile Include="HelperClass\BasicOCR.cs" />
     <Compile Include="HelperClass\StationName.cs" />
     <Page Include="MainWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Window1.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -159,7 +144,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <None Include="Resources\data.bin" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\close.png" />
@@ -180,7 +164,6 @@
     <Resource Include="ic_train.ico" />
     <Resource Include="Resources\ic_train.ico" />
     <Resource Include="Images\check.png" />
-    <Content Include="Resources\Sunday.dll" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">
