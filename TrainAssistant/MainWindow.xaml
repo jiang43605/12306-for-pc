@@ -286,13 +286,17 @@
                 <Button Grid.Row="6" Width="100" Content="确定" Name="btnAutoSubmitOrder" Style="{DynamicResource SquareButtonStyle}" Height="27" Click="btnAutoSubmitOrder_Click" />
             </Grid>
         </Border>
-        <Border Name="borderAutoSubmitOrderCode" Panel.ZIndex="2" Background="#fff" Width="300" Height="70" Padding="3,0,0,0" Visibility="Hidden">
+        <Border Name="borderAutoSubmitOrderCode" Panel.ZIndex="2" Background="#fff" Width="293" Height="230" Padding="3,0,0,0" Visibility="Visible">
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="190" />
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="1.*"/>
+                    <ColumnDefinition Width="1.*"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="1" Width="25" Height="25" Name="btnCloseAutoSubmitcode" ToolTip="关闭" Cursor="Hand" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,-69,-13,0" Click="btnCloseAutoSubmitcode_Click">
+                <Button Grid.Column="1" Width="25" Height="25" Name="btnCloseAutoSubmitcode" ToolTip="关闭" Margin="0 -13 -13 0" VerticalAlignment="Top" HorizontalAlignment="Right" Grid.ColumnSpan="2" Panel.ZIndex="2" Click="btnCloseAutoSubmitcode_Click">
                     <Button.Template>
                         <ControlTemplate>
                             <Ellipse>
@@ -303,8 +307,16 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
-                <TextBox Height="30" Controls:TextBoxHelper.Watermark="输入验证码" VerticalContentAlignment="Center" Controls:TextBoxHelper.ClearTextButton="True" Name="txtAutoSubmitCode" KeyUp="txtAutoSubmitCode_KeyUp"/>
-                <Image Grid.Column="1" Name="imgAutoSubmitOrderCode" Cursor="Hand" MouseLeftButtonUp="imgCode_MouseLeftButtonUp" ToolTip="单击更换图片" Width="80" HorizontalAlignment="Left" Height="30" Margin="6"/>
+                <Canvas Name="canvAutoSubmitOrderCode" MouseLeftButtonUp="canvAutoSubmitOrderCode_MouseLeftButtonUp" Grid.ColumnSpan="2" Width="293" Height="190">
+                    <Canvas.Background>
+                        <ImageBrush x:Name="imgAutoSubmitOrderCode" Stretch="Fill" />
+                    </Canvas.Background>
+                </Canvas>
+                <TextBlock Grid.Row="1" Width="50" HorizontalAlignment="Left" Height="15" Margin="7 0 0 0">
+                    <Hyperlink Name="linkAutoSubmitOrderCodeChange" Click="linkAutoSubmitOrderCodeChange_Click">换一张？</Hyperlink>
+                </TextBlock>
+                <Button Name="btnAutoSubmitOrderCodeValidate" Style="{DynamicResource SquareButtonStyle}" Grid.Column="1" Grid.Row="1" Width="100" Height="30" HorizontalAlignment="Right" Margin="0 0 7 0" Content="验 证" Click="btnAutoSubmitOrderCodeValidate_Click"/>
+                <TextBox Visibility="Hidden" Name="txtAutoSubmitOrderCodes" Panel.ZIndex="-1"/>
                 <Label Visibility="Hidden" Name="lblPassengers"/>
                 <Label Visibility="Hidden" Name="lblAutoIsChange"/>
             </Grid>
@@ -397,7 +409,7 @@
                                 <Button Style="{DynamicResource SquareButtonStyle}" Name="btnSearch" Grid.Column="2" Height="27" Content="搜  索" Width="100" HorizontalAlignment="Right" Click="btnSearch_Click" IsDefault="True" />
                             </Grid>
                         </Border>
-                        <Controls:ToggleSwitch Grid.Column="6" Grid.Row="2" Grid.ColumnSpan="2" Content="自动提交订单" Width="170" HorizontalAlignment="Right" Name="tsAutoOrder" Click="tsAutoOrder_Click" />
+                        <Controls:ToggleSwitch Grid.Column="6" Grid.Row="2" Grid.ColumnSpan="2" Content="自动提交订单" Width="170" HorizontalAlignment="Right" Name="tsAutoOrder" Checked="tsAutoOrder_Checked" />
                         <DataGrid Grid.Row="5" Grid.ColumnSpan="8" Name="gridTrainList" AutoGenerateColumns="False" Margin="0,5,0,0" IsReadOnly="True" MouseDoubleClick="gridTrainList_MouseDoubleClick" SelectionMode="Single">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="车次" Width="110" Binding="{Binding Path=TrainName}" />

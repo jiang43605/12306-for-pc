@@ -1001,7 +1001,7 @@ namespace TrainAssistant
         }
 
         //自动提交订单
-        private async void tsAutoOrder_Click(object sender, RoutedEventArgs e)
+        private async void tsAutoOrder_Checked(object sender, RoutedEventArgs e)
         {
             if ((bool)tsAutoOrder.IsChecked)
             {
@@ -1026,7 +1026,7 @@ namespace TrainAssistant
                         {
                             gridContacts.RowDefinitions.Add(new RowDefinition()
                             {
-                                Height = new GridLength(15)
+                                Height = new GridLength(18)
                             });
                         }
                         while (cCell-- > 0)
@@ -1045,7 +1045,7 @@ namespace TrainAssistant
                                 {
                                     Content = contacts[i].PassengerName,
                                     Name = "chk" + contacts[i].Code,
-                                    Height = 15,
+                                    Height = 18,
                                     Tag = contacts[i].PassengerType + "," + contacts[i].PassengerName + "," + contacts[i].PassengerIdTypeCode + "," + contacts[i].PassengerIdNo + "," + contacts[i].Mobile,
                                     Uid = contacts[i].PassengerName + "," + contacts[i].PassengerIdTypeCode + "," + contacts[i].PassengerIdNo + "," + contacts[i].PassengerType
                                 };
@@ -1268,6 +1268,7 @@ namespace TrainAssistant
         //关闭自动提交订单
         private void btnCloseAutoSubmit_Click(object sender, RoutedEventArgs e)
         {
+            lblPassengers.Content = lblAutoIsChange.Content = "";
             borderAutoSubmitOrder.Visibility = Visibility.Hidden;
             gridOpacity.Visibility = Visibility.Hidden;
             tsAutoOrder.IsChecked = false;
@@ -1366,50 +1367,17 @@ namespace TrainAssistant
                         borderAutoSubmitOrderCode.Visibility = Visibility.Visible;
                         gridOpacity.Visibility = Visibility.Visible;
                         BitmapImage bitAutoSubmitCode = await ticketHelper.GetLoginCodeAsync();
-                        imgAutoSubmitOrderCode.Source = bitAutoSubmitCode;
-                        //txtAutoSubmitCode.Text = dicAutoSubmitCode.Values.First();
+                        imgAutoSubmitOrderCode.ImageSource = bitAutoSubmitCode;
                     }
                 }
             }
             progressRingAnima.IsActive = false;
         }
 
-        //验证码输入长度等于4位，自动提交
-        private async void txtAutoSubmitCode_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (txtAutoSubmitCode.Text.Trim().Length == 4)
-            {
-                Dictionary<bool, string> dicResult = await ticketHelper.ConfirmOrderForAutoQueue(lblPassengers.Tag.ToString(), lblPassengers.Uid.ToString(), txtAutoSubmitCode.Text, lblAutoIsChange.Tag.ToString(), lblAutoIsChange.Uid.ToString(), lblAutoIsChange.Content.ToString());
-                if (!dicResult.Keys.First())
-                {
-                    MessageBox.Show(dicResult.Values.First(), "消息");
-                    return;
-                }
-                borderAutoSubmitOrderCode.Visibility = Visibility.Hidden;
-                gridOpacity.Visibility = Visibility.Hidden;
-                //等待出票
-                while (true)
-                {
-                    QueryOrderWaitTime queryOrderWaitTime = await ticketHelper.QueryOrderWaitTime("", "dc", "");
-                    if (queryOrderWaitTime.WaitTime <= 0)
-                    {
-                        if (!string.IsNullOrEmpty(queryOrderWaitTime.OrderId))
-                        {
-                            MessageBox.Show("出票成功！订单号：【" + queryOrderWaitTime.OrderId + "】", "消息", MessageBoxButton.OK, MessageBoxImage.Information);
-                        }
-                        break;
-                    }
-                    else
-                    {
-                        lblStatusMsg.Content = queryOrderWaitTime.Count > 0 ? "前面还有【" + queryOrderWaitTime.WaitCount + "】订单等待处理，大约需等待【" + queryOrderWaitTime.WaitTime + "】秒" : "正在处理订单，大约需要" + queryOrderWaitTime.WaitTime + "秒";
-                    }
-                }
-            }
-        }
-
         //关闭自动提交验证码输入对话框
         private void btnCloseAutoSubmitcode_Click(object sender, RoutedEventArgs e)
         {
+            txtAutoSubmitOrderCodes.Text = "";
             borderAutoSubmitOrderCode.Visibility = Visibility.Hidden;
             gridOpacity.Visibility = Visibility.Hidden;
         }
@@ -1562,7 +1530,7 @@ namespace TrainAssistant
             await GetOrderCode();
         }
 
-        //验证并提交验证码
+        //验证并提交验证码（提交订单）
         private async void btnSubmitOrderCodeValidate_Click(object sender, RoutedEventArgs e)
         {
             progressRingAnima.IsActive = true;
@@ -1596,6 +1564,78 @@ namespace TrainAssistant
             }
             MessageBox.Show(orderResult, "提示", MessageBoxButton.OK, MessageBoxImage.Information);
             progressRingAnima.IsActive = false;
+        }
+
+        //获取验证码（自动提交订单）
+        private void canvAutoSubmitOrderCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Point p = e.GetPosition((IInputElement)sender);
+            BitmapSource bitChkImg = new BitmapImage(new Uri(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "/Images/check.png", UriKind.Relative));
+            Image checAutokOrderImg = new Image();
+            checAutokOrderImg.ToolTip = "右击取消选择";
+            checAutokOrderImg.Source = bitChkImg;
+            checAutokOrderImg.Tag = p.X + "," + p.Y;
+            checAutokOrderImg.MouseRightButtonUp += checAutokOrderImg_MouseRightButtonUp;
+            Canvas.SetLeft(checAutokOrderImg, p.X - bitChkImg.Width / 2);
+            Canvas.SetTop(checAutokOrderImg, p.Y - bitChkImg.Height / 2);
+            canvSubmitOrderCode.Children.Add(checAutokOrderImg);
+            string codeXY = txtSubmitOrderCodes.Text + ',' + p.X + ',' + p.Y;
+            txtSubmitOrderCodes.Text = codeXY.TrimStart(',');
+        }
+
+        //右击取消选择（自动提交订单）
+        void checAutokOrderImg_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var imgCheck = sender as Image;
+            string strChecks = txtAutoSubmitOrderCodes.Text.Replace(imgCheck.Tag.ToString(), "");
+            txtAutoSubmitOrderCodes.Text = "";
+            string strChkCodes = "";
+            var arrChecks = strChecks.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var item in arrChecks)
+            {
+                strChkCodes += item + ',';
+            }
+            strChkCodes = strChkCodes.Trim(',');
+            txtAutoSubmitOrderCodes.Text = strChkCodes;
+            canvAutoSubmitOrderCode.Children.Remove(imgCheck);
+        }
+
+        //刷新验证码（自动提交订单）
+        private async void linkAutoSubmitOrderCodeChange_Click(object sender, RoutedEventArgs e)
+        {
+            txtAutoSubmitOrderCodes.Text = "";
+            BitmapImage bitAutoSubmitCode = await ticketHelper.GetLoginCodeAsync();
+            imgAutoSubmitOrderCode.ImageSource = bitAutoSubmitCode;
+        }
+
+        //验证并提交（自动提交订单）
+        private async void btnAutoSubmitOrderCodeValidate_Click(object sender, RoutedEventArgs e)
+        {
+            Dictionary<bool, string> dicResult = await ticketHelper.ConfirmOrderForAutoQueue(lblPassengers.Tag.ToString(), lblPassengers.Uid.ToString(), null, lblAutoIsChange.Tag.ToString(), lblAutoIsChange.Uid.ToString(), lblAutoIsChange.Content.ToString());
+            if (!dicResult.Keys.First())
+            {
+                MessageBox.Show(dicResult.Values.First(), "消息");
+                return;
+            }
+            borderAutoSubmitOrderCode.Visibility = Visibility.Hidden;
+            gridOpacity.Visibility = Visibility.Hidden;
+            //等待出票
+            while (true)
+            {
+                QueryOrderWaitTime queryOrderWaitTime = await ticketHelper.QueryOrderWaitTime("", "dc", "");
+                if (queryOrderWaitTime.WaitTime <= 0)
+                {
+                    if (!string.IsNullOrEmpty(queryOrderWaitTime.OrderId))
+                    {
+                        MessageBox.Show("出票成功！订单号：【" + queryOrderWaitTime.OrderId + "】", "消息", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    break;
+                }
+                else
+                {
+                    lblStatusMsg.Content = queryOrderWaitTime.Count > 0 ? "前面还有【" + queryOrderWaitTime.WaitCount + "】订单等待处理，大约需等待【" + queryOrderWaitTime.WaitTime + "】秒" : "正在处理订单，大约需要" + queryOrderWaitTime.WaitTime + "秒";
+                }
+            }
         }
 
     }
