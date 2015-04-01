@@ -286,7 +286,7 @@
                 <Button Grid.Row="6" Width="100" Content="确定" Name="btnAutoSubmitOrder" Style="{DynamicResource SquareButtonStyle}" Height="27" Click="btnAutoSubmitOrder_Click" />
             </Grid>
         </Border>
-        <Border Name="borderAutoSubmitOrderCode" Panel.ZIndex="2" Background="#fff" Width="293" Height="230" Padding="3,0,0,0" Visibility="Visible">
+        <Border Name="borderAutoSubmitOrderCode" Panel.ZIndex="2" Background="#fff" Width="293" Height="230" Padding="3,0,0,0" Visibility="Hidden">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="190" />

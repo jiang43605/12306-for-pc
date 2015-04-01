@@ -147,7 +147,7 @@ namespace TrainAssistant
         }
 
         /// <summary>
-        /// 刷新登录验证码
+        /// 刷新登录（自动提交订单）验证码
         /// </summary>
         /// <returns></returns>
         private async Task GetValidateCodeImage()
@@ -157,11 +157,14 @@ namespace TrainAssistant
             BitmapImage bitLoginCode = await ticketHelper.GetLoginCodeAsync();
             if (borderAutoSubmitOrderCode.Visibility == Visibility.Visible)
             {
-                //imgAutoSubmitOrderCode.Source = dicLoginCode.Keys.First();
-                //txtAutoSubmitCode.Text = dicLoginCode.Values.First();
+                //自动提交订单验证码
+                txtAutoSubmitOrderCodes.Text = "";
+                imgAutoSubmitOrderCode.ImageSource = bitLoginCode;
             }
             else
             {
+                //登录验证码
+                txtLoginCodes.Text = "";
                 imgLoginCode.ImageSource = bitLoginCode;
             }
             lblStatusMsg.Content = "获取验证码完成";
@@ -178,12 +181,6 @@ namespace TrainAssistant
             BitmapImage bitOrderCode = await ticketHelper.GetSubmitOrderCode();
             imgSubmitOrderCode.ImageSource = bitOrderCode;
             progressRingAnima.IsActive = false;
-        }
-
-        //更换验证码
-        private async void imgCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            await GetValidateCodeImage();
         }
 
         //登录
@@ -1359,8 +1356,7 @@ namespace TrainAssistant
                         }
                         borderAutoSubmitOrderCode.Visibility = Visibility.Visible;
                         gridOpacity.Visibility = Visibility.Visible;
-                        BitmapImage bitAutoSubmitCode = await ticketHelper.GetLoginCodeAsync();
-                        imgAutoSubmitOrderCode.ImageSource = bitAutoSubmitCode;
+                        await GetValidateCodeImage();
                     }
                 }
             }
@@ -1596,9 +1592,7 @@ namespace TrainAssistant
         //刷新验证码（自动提交订单）
         private async void linkAutoSubmitOrderCodeChange_Click(object sender, RoutedEventArgs e)
         {
-            txtAutoSubmitOrderCodes.Text = "";
-            BitmapImage bitAutoSubmitCode = await ticketHelper.GetLoginCodeAsync();
-            imgAutoSubmitOrderCode.ImageSource = bitAutoSubmitCode;
+            await GetValidateCodeImage();
         }
 
         //验证并提交（自动提交订单）
