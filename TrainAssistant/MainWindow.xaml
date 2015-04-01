@@ -324,7 +324,7 @@
 
         <TabControl Grid.Row="0" Name="tabItems">
             <TabControl.Items>
-                <TabItem Name="tabQuery" Header="车票查询/预订">
+                <TabItem Name="tabQuery" Header="我要预订">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="35"/>
@@ -438,7 +438,7 @@
                         </DataGrid>
                     </Grid>
                 </TabItem>
-                <TabItem Header="订单查询">
+                <TabItem Header="我的订单">
                     <Grid>
 
                     </Grid>

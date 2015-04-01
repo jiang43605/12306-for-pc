@@ -96,6 +96,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Models\OrderQueue.cs" />
+    <Compile Include="Models\Orders.cs" />
+    <Compile Include="Models\OrderTicketInfos.cs" />
     <Compile Include="Models\Query.cs" />
     <Compile Include="Models\QueryOrderWaitTime.cs">
       <SubType>Code</SubType>
