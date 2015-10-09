@@ -18,6 +18,7 @@ using Newtonsoft.Json.Linq;
 using TrainAssistant.Models;
 using System.Web;
 using System.Windows.Threading;
+using System.Windows.Interop;
 
 namespace TrainAssistant
 {
@@ -1384,7 +1385,7 @@ namespace TrainAssistant
         private void canvLoginCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition((IInputElement)sender);
-            BitmapSource bitChkImg = new BitmapImage(new Uri(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "/Images/check.png", UriKind.Relative));
+            BitmapSource bitChkImg = Imaging.CreateBitmapSourceFromHBitmap(TrainAssistant.Properties.Resources.check.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             Image checkImg = new Image();
             checkImg.ToolTip = "右击取消选择";
             checkImg.Source = bitChkImg;
@@ -1481,7 +1482,7 @@ namespace TrainAssistant
         private void canvSubmitOrderCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition((IInputElement)sender);
-            BitmapSource bitChkImg = new BitmapImage(new Uri(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "/Images/check.png", UriKind.Relative));
+            BitmapSource bitChkImg = Imaging.CreateBitmapSourceFromHBitmap(TrainAssistant.Properties.Resources.check.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             Image checkOrderImg = new Image();
             checkOrderImg.ToolTip = "右击取消选择";
             checkOrderImg.Source = bitChkImg;
@@ -1559,7 +1560,7 @@ namespace TrainAssistant
         private void canvAutoSubmitOrderCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition((IInputElement)sender);
-            BitmapSource bitChkImg = new BitmapImage(new Uri(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "/Images/check.png", UriKind.Relative));
+            BitmapSource bitChkImg = Imaging.CreateBitmapSourceFromHBitmap(TrainAssistant.Properties.Resources.check.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             Image checAutokOrderImg = new Image();
             checAutokOrderImg.ToolTip = "右击取消选择";
             checAutokOrderImg.Source = bitChkImg;
