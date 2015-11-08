@@ -1385,24 +1385,26 @@ namespace TrainAssistant
         private void canvLoginCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition((IInputElement)sender);
+            double px = p.X, py = p.Y;
             BitmapSource bitChkImg = Imaging.CreateBitmapSourceFromHBitmap(TrainAssistant.Properties.Resources.check.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             Image checkImg = new Image();
             checkImg.ToolTip = "右击取消选择";
             checkImg.Source = bitChkImg;
-            checkImg.Tag = p.X + "," + p.Y;
+            checkImg.Tag = px + "," + (py - 31);
             checkImg.MouseRightButtonUp += checkImg_MouseRightButtonUp;
-            Canvas.SetLeft(checkImg, p.X - bitChkImg.Width / 2);
-            Canvas.SetTop(checkImg, p.Y - bitChkImg.Height / 2);
+            Canvas.SetLeft(checkImg, px - bitChkImg.Width / 2);
+            Canvas.SetTop(checkImg, py - bitChkImg.Height / 2);
             canvLoginCode.Children.Add(checkImg);
-            string codeXY = txtLoginCodes.Text + ',' + p.X + ',' + p.Y;
+            string codeXY = txtLoginCodes.Text + ',' + px + ',' + (py - 31);
             txtLoginCodes.Text = codeXY.TrimStart(',');
+            MessageBox.Show(txtLoginCodes.Text);
         }
 
         //右击图片撤销选择（登录）
         void checkImg_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             var imgCheck = sender as Image;
-            string strChecks = txtLoginCodes.Text.Replace(imgCheck.Tag.ToString(), "");
+            string strChecks = txtLoginCodes.Text.ToString().Replace(imgCheck.Tag.ToString(), "");
             txtLoginCodes.Text = "";
             string strChkCodes = "";
             var arrChecks = strChecks.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -1428,7 +1430,11 @@ namespace TrainAssistant
         {
             try
             {
-                lblStatusMsg.Content = await ticketHelper.Login(txtUserName.Text.Trim(), txtPassword.Password.Trim(), txtLoginCodes.Text, lblRandomParam.Tag.ToString());
+                bool result = await ticketHelper.CheckVerifyCode(txtLoginCodes.Text);
+                if (result)
+                {
+                    lblStatusMsg.Content = await ticketHelper.Login(txtUserName.Text.Trim(), txtPassword.Password.Trim(), txtLoginCodes.Text, lblRandomParam.Tag.ToString());
+                }
             }
             catch (Exception)
             {

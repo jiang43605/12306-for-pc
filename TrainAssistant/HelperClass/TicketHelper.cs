@@ -192,13 +192,13 @@ namespace JasonLong.Helper
             {
                 Thread.Sleep(100);
                 string result = "", url = ConfigurationManager.AppSettings["LoginUrl"].ToString();
-                string loginrandomValue = JSFunctionHelper.GetRandomParamCodes(loginRandomKey, "1111");
+                //string loginrandomValue = JSFunctionHelper.GetRandomParamCodes(loginRandomKey, "1111");
                 Dictionary<string, string> param = new Dictionary<string, string>();
-                param.Add("loginUserDTO.user_name", userName);//用户名
+                param.Add("loginUserDTO.user_name", HttpUtility.UrlEncode(userName));//用户名
                 param.Add("userDTO.password", password);//密码
-                param.Add("randCode", code);//验证码
-                param.Add(loginRandomKey, loginrandomValue);
-                param.Add("myversion", "undefined");
+                param.Add("randCode", HttpUtility.UrlEncode(code).ToUpper());//验证码
+                //param.Add(loginRandomKey, loginrandomValue);
+                //param.Add("myversion", "undefined");
                 result = httpHelper.GetResponseByPOST(url, param);
                 if (result != "")
                 {
@@ -1062,7 +1062,33 @@ namespace JasonLong.Helper
             });
         }
 
-        
+        /// <summary>
+        /// 检验验证是否正确
+        /// </summary>
+        /// <param name="verifyCode"></param>
+        /// <returns></returns>
+        public Task<bool> CheckVerifyCode(string verifyCode)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                var strUrl = ConfigurationManager.AppSettings["CheckVerifyCode"];
+                Dictionary<string, string> dicParams = new Dictionary<string, string>()
+                {
+                    {"randCode",verifyCode},
+                    {"rand","sjrand"}
+                };
+
+                var result = httpHelper.GetResponseByPOST(strUrl, dicParams);
+                JObject json = JObject.Parse(result);
+                //if (!string.IsNullOrEmpty(json["data"].ToString()))
+                //{
+                //    var jsonResult=
+                //}
+                int jsonResult = int.Parse(json["data"]["result"].ToString());
+                return jsonResult == 1 ? true : false;
+            });
+        }
+
 
         /// <summary>
         /// 获取DataGrid行

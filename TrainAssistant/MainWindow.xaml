@@ -55,7 +55,7 @@
             </Grid>
         </Border>
         <!--登录验证码-->
-        <Border Name="loginCodePopup" Background="#fff" Panel.ZIndex="2" Width="293" Height="230" Grid.RowSpan="2" Visibility="Hidden">
+        <Border Name="loginCodePopup" Background="#fff" Panel.ZIndex="2" Width="293" Height="230" Grid.RowSpan="2" Visibility="Visible">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="190" />
@@ -76,6 +76,7 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
+                <Canvas Background="#fff" Opacity="0" Grid.ColumnSpan="2" Height="31" Panel.ZIndex="1" Margin="0,0,0,159" />
                 <Canvas Name="canvLoginCode" MouseLeftButtonUp="canvLoginCode_MouseLeftButtonUp" Grid.ColumnSpan="2" Width="293" Height="190">
                     <Canvas.Background>
                         <ImageBrush x:Name="imgLoginCode" Stretch="Fill" />
