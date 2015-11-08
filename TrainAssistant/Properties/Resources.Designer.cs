@@ -69,5 +69,14 @@ namespace TrainAssistant.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   查找类似 {&quot;D&quot;:[{&quot;end_station_name&quot;:&quot;&quot;,&quot;end_time&quot;:&quot;&quot;,&quot;id&quot;:&quot;4&quot;,&quot;start_station_name&quot;:&quot;&quot;,&quot;start_time&quot;:&quot;&quot;,&quot;value&quot;:&quot;软卧&quot;},{&quot;end_station_name&quot;:&quot;&quot;,&quot;end_time&quot;:&quot;&quot;,&quot;id&quot;:&quot;6&quot;,&quot;start_station_name&quot;:&quot;&quot;,&quot;start_time&quot;:&quot;&quot;,&quot;value&quot;:&quot;高级软卧&quot;},{&quot;end_station_name&quot;:&quot;&quot;,&quot;end_time&quot;:&quot;&quot;,&quot;id&quot;:&quot;9&quot;,&quot;start_station_name&quot;:&quot;&quot;,&quot;start_time&quot;:&quot;&quot;,&quot;value&quot;:&quot;商务座&quot;},{&quot;end_station_name&quot;:&quot;&quot;,&quot;end_time&quot;:&quot;&quot;,&quot;id&quot;:&quot;M&quot;,&quot;start_station_name&quot;:&quot;&quot;,&quot;start_time&quot;:&quot;&quot;,&quot;value&quot;:&quot;一等座&quot;},{&quot;end_station_name&quot;:&quot;&quot;,&quot;end_time&quot;:&quot;&quot;,&quot;id&quot;:&quot;O&quot;,&quot;start_sta... 的本地化字符串。
+        /// </summary>
+        internal static string SeatType {
+            get {
+                return ResourceManager.GetString("SeatType", resourceCulture);
+            }
+        }
     }
 }

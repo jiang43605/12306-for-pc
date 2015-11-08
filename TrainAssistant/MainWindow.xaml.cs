@@ -307,20 +307,10 @@ namespace TrainAssistant
             {
                 Thread.Sleep(100);
                 Dictionary<string, string> tickType = new Dictionary<string, string>();
-                if (File.Exists("SeatType.txt"))
-                {
-                    using (StreamReader read = new StreamReader("SeatType.txt", Encoding.UTF8))
-                    {
-                        string result = read.ReadToEnd();
-                        if (result != "")
-                        {
-                            JObject json = JObject.Parse(result);
-                            var t = (from j in json[type]
-                                     select new { value = j["value"].ToString(), id = j["id"].ToString() }).ToList();
-                            tickType = t.ToDictionary(c => c.id, c => c.value);
-                        }
-                    }
-                }
+                JObject json = JObject.Parse(Properties.Resources.SeatType);
+                var t = (from j in json[type]
+                         select new { value = j["value"].ToString(), id = j["id"].ToString() }).ToList();
+                tickType = t.ToDictionary(c => c.id, c => c.value);
                 return tickType;
             });
         }
@@ -1397,7 +1387,6 @@ namespace TrainAssistant
             canvLoginCode.Children.Add(checkImg);
             string codeXY = txtLoginCodes.Text + ',' + px + ',' + (py - 31);
             txtLoginCodes.Text = codeXY.TrimStart(',');
-            MessageBox.Show(txtLoginCodes.Text);
         }
 
         //右击图片撤销选择（登录）
@@ -1488,16 +1477,17 @@ namespace TrainAssistant
         private void canvSubmitOrderCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition((IInputElement)sender);
-            BitmapSource bitChkImg = Imaging.CreateBitmapSourceFromHBitmap(TrainAssistant.Properties.Resources.check.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            double px = p.X, py = p.Y;
+            BitmapSource bitChkImg = Imaging.CreateBitmapSourceFromHBitmap(Properties.Resources.check.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             Image checkOrderImg = new Image();
             checkOrderImg.ToolTip = "右击取消选择";
             checkOrderImg.Source = bitChkImg;
-            checkOrderImg.Tag = p.X + "," + p.Y;
+            checkOrderImg.Tag = px + "," + (py - 31);
             checkOrderImg.MouseRightButtonUp += checkOrderImg_MouseRightButtonUp;
             Canvas.SetLeft(checkOrderImg, p.X - bitChkImg.Width / 2);
             Canvas.SetTop(checkOrderImg, p.Y - bitChkImg.Height / 2);
             canvSubmitOrderCode.Children.Add(checkOrderImg);
-            string codeXY = txtSubmitOrderCodes.Text + ',' + p.X + ',' + p.Y;
+            string codeXY = txtSubmitOrderCodes.Text + ',' + px + ',' + (py - 31);
             txtSubmitOrderCodes.Text = codeXY.TrimStart(',');
         }
 
@@ -1556,6 +1546,7 @@ namespace TrainAssistant
                 //下单成功
                 orderPopup.Visibility = Visibility.Hidden;
                 submitOrderCodePopup.Visibility = Visibility.Hidden;
+                gridOpacity.Visibility = Visibility.Hidden;
                 tabItems.SelectedIndex = 2;
             }
             MessageBox.Show(orderResult, "提示", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -1566,16 +1557,17 @@ namespace TrainAssistant
         private void canvAutoSubmitOrderCode_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition((IInputElement)sender);
-            BitmapSource bitChkImg = Imaging.CreateBitmapSourceFromHBitmap(TrainAssistant.Properties.Resources.check.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            double px = p.X, py = p.Y;
+            BitmapSource bitChkImg = Imaging.CreateBitmapSourceFromHBitmap(Properties.Resources.check.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             Image checAutokOrderImg = new Image();
             checAutokOrderImg.ToolTip = "右击取消选择";
             checAutokOrderImg.Source = bitChkImg;
-            checAutokOrderImg.Tag = p.X + "," + p.Y;
+            checAutokOrderImg.Tag = px + "," + (py - 31);
             checAutokOrderImg.MouseRightButtonUp += checAutokOrderImg_MouseRightButtonUp;
             Canvas.SetLeft(checAutokOrderImg, p.X - bitChkImg.Width / 2);
             Canvas.SetTop(checAutokOrderImg, p.Y - bitChkImg.Height / 2);
             canvAutoSubmitOrderCode.Children.Add(checAutokOrderImg);
-            string codeXY = txtAutoSubmitOrderCodes.Text + ',' + p.X + ',' + p.Y;
+            string codeXY = txtAutoSubmitOrderCodes.Text + ',' + px + ',' + (py - 31);
             txtAutoSubmitOrderCodes.Text = codeXY.TrimStart(',');
         }
 

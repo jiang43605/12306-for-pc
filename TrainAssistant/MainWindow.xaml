@@ -55,7 +55,7 @@
             </Grid>
         </Border>
         <!--登录验证码-->
-        <Border Name="loginCodePopup" Background="#fff" Panel.ZIndex="2" Width="293" Height="230" Grid.RowSpan="2" Visibility="Visible">
+        <Border Name="loginCodePopup" Background="#fff" Panel.ZIndex="2" Width="293" Height="230" Grid.RowSpan="2" Visibility="Hidden">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="190" />
@@ -223,6 +223,7 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
+                <Canvas Background="#fff" Opacity="0" Grid.ColumnSpan="2" Height="31" Panel.ZIndex="1" Margin="0,0,0,159" />
                 <Canvas Name="canvSubmitOrderCode" MouseLeftButtonUp="canvSubmitOrderCode_MouseLeftButtonUp" Grid.ColumnSpan="2" Width="293" Height="190">
                     <Canvas.Background>
                         <ImageBrush x:Name="imgSubmitOrderCode" Stretch="Fill" />
@@ -308,6 +309,7 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
+                <Canvas Background="#fff" Opacity="0" Grid.ColumnSpan="2" Height="31" Panel.ZIndex="1" Margin="0,0,0,159" />
                 <Canvas Name="canvAutoSubmitOrderCode" MouseLeftButtonUp="canvAutoSubmitOrderCode_MouseLeftButtonUp" Grid.ColumnSpan="2" Width="293" Height="190">
                     <Canvas.Background>
                         <ImageBrush x:Name="imgAutoSubmitOrderCode" Stretch="Fill" />
@@ -405,7 +407,7 @@
                                     <ColumnDefinition Width="75"/>
                                     <ColumnDefinition Width="110"/>
                                 </Grid.ColumnDefinitions>
-                                <CheckBox Content="可预订" Height="18" Name="chkCanReservate" Click="chkCanReservate_Click" HorizontalAlignment="Right" Width="55" />
+                                <CheckBox Content="可预订" Height="18" Name="chkCanReservate" Click="chkCanReservate_Click" HorizontalAlignment="Right" />
                                 <CheckBox Content="自动搜索" HorizontalAlignment="Right" Grid.Column="1" Name="chkAutoSearch" Click="chkAutoSearch_Click" Height="18" />
                                 <Button Style="{DynamicResource SquareButtonStyle}" Name="btnSearch" Grid.Column="2" Height="27" Content="搜  索" Width="100" HorizontalAlignment="Right" Click="btnSearch_Click" IsDefault="True" />
                             </Grid>

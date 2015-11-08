@@ -946,11 +946,11 @@ namespace JasonLong.Helper
             return Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(100);
-                string autoSubmitRandomValue = JSFunctionHelper.GetRandomParamCodes(autoSubmitRandomKey, "1111");
+                //string autoSubmitRandomValue = JSFunctionHelper.GetRandomParamCodes(autoSubmitRandomKey, "1111");
                 Dictionary<string, string> dicAutoSubmitOrderParams = new Dictionary<string, string>()
                 {
-                    {autoSubmitRandomKey,autoSubmitRandomValue},
-                    {"myversion","undefined"},
+                    //{autoSubmitRandomKey,autoSubmitRandomValue},
+                    //{"myversion","undefined"},
                     {"secretStr",ticket.SecretStr},
                     {"train_date",ticket.StartTrainDate},
                     {"tour_flag",tourFlag},
@@ -1037,9 +1037,9 @@ namespace JasonLong.Helper
                 string confirmOrderForAutoQueueUrl = ConfigurationManager.AppSettings["ConfirmAutoSubmitOrderUrl"].ToString();
                 Dictionary<string, string> dicParams = new Dictionary<string, string>()
                 {
-                    {"passengerTicketStr",passengerStrs},
-                    {"oldPassengerStr",oldPassengers},
-                    {"randCode",code},
+                    {"passengerTicketStr",HttpUtility.UrlEncode(passengerStrs)},
+                    {"oldPassengerStr",HttpUtility.UrlEncode(oldPassengers)},
+                    {"randCode",HttpUtility.UrlEncode(code)},
                     {"purpose_codes",purposeCode},
                     {"key_check_isChange",isChange},
                     {"leftTicketStr",ticketStr},
@@ -1080,11 +1080,8 @@ namespace JasonLong.Helper
 
                 var result = httpHelper.GetResponseByPOST(strUrl, dicParams);
                 JObject json = JObject.Parse(result);
-                //if (!string.IsNullOrEmpty(json["data"].ToString()))
-                //{
-                //    var jsonResult=
-                //}
                 int jsonResult = int.Parse(json["data"]["result"].ToString());
+
                 return jsonResult == 1 ? true : false;
             });
         }
