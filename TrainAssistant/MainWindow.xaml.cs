@@ -19,6 +19,7 @@ using TrainAssistant.Models;
 using System.Web;
 using System.Windows.Threading;
 using System.Windows.Interop;
+using System.Windows.Media;
 
 namespace TrainAssistant
 {
@@ -33,14 +34,51 @@ namespace TrainAssistant
         public const string accountFile = "Account";//登录用户信息
         string seatTypes = "";//席别
         private const string purposeCode = "ADULT";
+
+        //通知区域
+        //private System.Windows.Forms.NotifyIcon notifyIcon = null;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            var menus = new[] { "登录","打开12306 for pc", "设置", "关于","-", "退出" };
+            System.Windows.Forms.MenuItem menuItem = null;
+
+
+            //notifyIcon = new System.Windows.Forms.NotifyIcon();
+            //notifyIcon.Icon = Properties.Resources.ic_train;
+            //notifyIcon.Text = "12306 for pc";
+            //notifyIcon.Visible = true;
+            //notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu();
+            //for (int i = 0; i < menus.Length; i++)
+            //{
+            //    menuItem = new System.Windows.Forms.MenuItem();
+            //    menuItem.Text = menus[i];
+            //    notifyIcon.ContextMenu.MenuItems.Add(menuItem);
+            //}
+
+            //notifyIcon.MouseClick += notifyIcon_MouseClick;
         }
+
+        // 显示窗体
+        //void notifyIcon_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
+        //{
+        //    if (e.Button == System.Windows.Forms.MouseButtons.Left)
+        //    {
+        //        if (this.Visibility == Visibility.Hidden)
+        //        {
+        //            this.Visibility = Visibility.Visible;
+        //            this.Show();
+        //        }
+        //    }
+        //}
 
         //窗口加载
         private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            ticketHelper.SpeechSpeak("欢迎使用一二三零六 for pc");
+
             if (ticketHelper.CheckInternetConnectedState())
             {
                 txtDate.DisplayDateStart = DateTime.Now;
@@ -50,10 +88,26 @@ namespace TrainAssistant
             }
             else
             {
-                if (MessageBoxResult.OK == MessageBox.Show("网络无Internet链接，检查网络后再试！", "消息", MessageBoxButton.OK, MessageBoxImage.Warning))
+                if (MessageBoxResult.OK == MessageBox.Show("网络无Internet访问，检查网络后再试！", "消息", MessageBoxButton.OK, MessageBoxImage.Warning))
                 {
                     this.Close();
                 }
+            }
+
+            //NotifyWindow notifyWindow = new NotifyWindow();
+            //notifyWindow.Title = "12306 for pc";
+            //notifyWindow.Icon = Imaging.CreateBitmapSourceFromHBitmap(Properties.Resources.ic_train.ToBitmap().GetHbitmap(),IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            //notifyWindow.Content = "测试信息";
+            //notifyWindow.Show();
+
+        }
+
+        // 窗体状态变化
+        private void MetroWindow_StateChanged(object sender, EventArgs e)
+        {
+            if (this.WindowState == WindowState.Minimized)
+            {
+                this.Visibility = Visibility.Hidden;
             }
         }
 

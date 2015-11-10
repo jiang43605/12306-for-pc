@@ -17,6 +17,8 @@ using System.Windows.Media.Imaging;
 using TrainAssistant.Models;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Speech;
+using System.Speech.Synthesis;
 
 namespace JasonLong.Helper
 {
@@ -38,6 +40,17 @@ namespace JasonLong.Helper
         {
             int connDescript = 0;
             return InternetGetConnectedState(out connDescript, 0);
+        }
+
+        /// <summary>
+        /// 语音朗读
+        /// </summary>
+        /// <param name="content"></param>
+        public void SpeechSpeak(string content)
+        {
+            SpeechSynthesizer speech = new SpeechSynthesizer();
+            speech.Rate = 0;
+            speech.SpeakAsync(content);
         }
 
         /// <summary>

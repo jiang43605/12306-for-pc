@@ -71,6 +71,16 @@ namespace TrainAssistant.Properties {
         }
         
         /// <summary>
+        ///   查找类似于 (Icon) 的 System.Drawing.Icon 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Icon ic_train {
+            get {
+                object obj = ResourceManager.GetObject("ic_train", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 {&quot;D&quot;:[{&quot;end_station_name&quot;:&quot;&quot;,&quot;end_time&quot;:&quot;&quot;,&quot;id&quot;:&quot;4&quot;,&quot;start_station_name&quot;:&quot;&quot;,&quot;start_time&quot;:&quot;&quot;,&quot;value&quot;:&quot;软卧&quot;},{&quot;end_station_name&quot;:&quot;&quot;,&quot;end_time&quot;:&quot;&quot;,&quot;id&quot;:&quot;6&quot;,&quot;start_station_name&quot;:&quot;&quot;,&quot;start_time&quot;:&quot;&quot;,&quot;value&quot;:&quot;高级软卧&quot;},{&quot;end_station_name&quot;:&quot;&quot;,&quot;end_time&quot;:&quot;&quot;,&quot;id&quot;:&quot;9&quot;,&quot;start_station_name&quot;:&quot;&quot;,&quot;start_time&quot;:&quot;&quot;,&quot;value&quot;:&quot;商务座&quot;},{&quot;end_station_name&quot;:&quot;&quot;,&quot;end_time&quot;:&quot;&quot;,&quot;id&quot;:&quot;M&quot;,&quot;start_station_name&quot;:&quot;&quot;,&quot;start_time&quot;:&quot;&quot;,&quot;value&quot;:&quot;一等座&quot;},{&quot;end_station_name&quot;:&quot;&quot;,&quot;end_time&quot;:&quot;&quot;,&quot;id&quot;:&quot;O&quot;,&quot;start_sta... 的本地化字符串。
         /// </summary>
         internal static string SeatType {
