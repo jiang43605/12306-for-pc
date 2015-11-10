@@ -117,12 +117,17 @@
     <Compile Include="HelperClass\HttpHelper.cs" />
     <Compile Include="HelperClass\DataSecurity.cs" />
     <Compile Include="HelperClass\StationName.cs" />
+    <Compile Include="NotifyIconViewModel.cs" />
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="NotifyIconResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Window1.xaml">
       <SubType>Designer</SubType>

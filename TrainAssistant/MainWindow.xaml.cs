@@ -43,7 +43,7 @@ namespace TrainAssistant
             InitializeComponent();
 
             var menus = new[] { "登录","打开12306 for pc", "设置", "关于","-", "退出" };
-            System.Windows.Forms.MenuItem menuItem = null;
+            //System.Windows.Forms.MenuItem menuItem = null;
 
 
             //notifyIcon = new System.Windows.Forms.NotifyIcon();
