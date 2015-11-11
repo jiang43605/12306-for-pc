@@ -20,6 +20,8 @@ using System.Web;
 using System.Windows.Threading;
 using System.Windows.Interop;
 using System.Windows.Media;
+using Hardcodet.Wpf.TaskbarNotification;
+using System.Windows.Controls.Primitives;
 
 namespace TrainAssistant
 {
@@ -35,47 +37,13 @@ namespace TrainAssistant
         string seatTypes = "";//席别
         private const string purposeCode = "ADULT";
 
-        //通知区域
-        //private System.Windows.Forms.NotifyIcon notifyIcon = null;
-
         public MainWindow()
         {
             InitializeComponent();
-
-            var menus = new[] { "登录","打开12306 for pc", "设置", "关于","-", "退出" };
-            //System.Windows.Forms.MenuItem menuItem = null;
-
-
-            //notifyIcon = new System.Windows.Forms.NotifyIcon();
-            //notifyIcon.Icon = Properties.Resources.ic_train;
-            //notifyIcon.Text = "12306 for pc";
-            //notifyIcon.Visible = true;
-            //notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu();
-            //for (int i = 0; i < menus.Length; i++)
-            //{
-            //    menuItem = new System.Windows.Forms.MenuItem();
-            //    menuItem.Text = menus[i];
-            //    notifyIcon.ContextMenu.MenuItems.Add(menuItem);
-            //}
-
-            //notifyIcon.MouseClick += notifyIcon_MouseClick;
         }
 
-        // 显示窗体
-        //void notifyIcon_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
-        //{
-        //    if (e.Button == System.Windows.Forms.MouseButtons.Left)
-        //    {
-        //        if (this.Visibility == Visibility.Hidden)
-        //        {
-        //            this.Visibility = Visibility.Visible;
-        //            this.Show();
-        //        }
-        //    }
-        //}
-
         //窗口加载
-        private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
             ticketHelper.SpeechSpeak("欢迎使用一二三零六 for pc");
 
@@ -84,7 +52,16 @@ namespace TrainAssistant
                 txtDate.DisplayDateStart = DateTime.Now;
                 txtDate.DisplayDateEnd = DateTime.Now.AddDays(59);
                 txtDate.Text = txtDate.DisplayDateEnd.Value.ToString("yyyy-MM-dd");
-                IsShowLoginPopup(true);
+
+                if (Application.Current.Properties.Count < 1 || string.IsNullOrEmpty(Application.Current.Properties["USERNAME"].ToString()))
+                {
+                    IsShowLoginPopup(true);
+                }
+                else
+                {
+                    lblLoginName.Text = "欢迎，" + Application.Current.Properties["USERNAME"];
+                    await InitQueryValue();
+                }
             }
             else
             {
@@ -92,22 +69,6 @@ namespace TrainAssistant
                 {
                     this.Close();
                 }
-            }
-
-            //NotifyWindow notifyWindow = new NotifyWindow();
-            //notifyWindow.Title = "12306 for pc";
-            //notifyWindow.Icon = Imaging.CreateBitmapSourceFromHBitmap(Properties.Resources.ic_train.ToBitmap().GetHbitmap(),IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-            //notifyWindow.Content = "测试信息";
-            //notifyWindow.Show();
-
-        }
-
-        // 窗体状态变化
-        private void MetroWindow_StateChanged(object sender, EventArgs e)
-        {
-            if (this.WindowState == WindowState.Minimized)
-            {
-                this.Visibility = Visibility.Hidden;
             }
         }
 
@@ -145,6 +106,20 @@ namespace TrainAssistant
                 gridOpacity.Visibility = Visibility.Hidden;
                 loginPopup.Visibility = Visibility.Hidden;
             }
+        }
+
+        /// <summary>
+        /// 右下角提示消息
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="content"></param>
+        public void OpenNotifyMsg(string title, string content)
+        {
+            NotifyMsgWindow notifyMsg = new NotifyMsgWindow();
+            notifyMsg.BalloonTextTitle = title;
+            notifyMsg.BalloonTextContent = content;
+            TaskbarIcon notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
+            notifyIcon.ShowCustomBalloon(notifyMsg, PopupAnimation.Slide, 4000);
         }
 
         //注册新用户
@@ -1491,23 +1466,14 @@ namespace TrainAssistant
                 IsShowLoginPopup(false);
                 btnLogout.Visibility = Visibility.Visible;
                 loginCodePopup.Visibility = Visibility.Hidden;
-                lblLoginName.Text = "欢迎，" + loginName.Substring(0, loginName.IndexOf("登录成功"));
+                string userName = loginName.Substring(0, loginName.IndexOf("登录成功"));
+                lblLoginName.Text = "欢迎，" + userName;
                 lblStatusMsg.Content = loginName.Substring(loginName.IndexOf("登录成功"));
+
+                Application.Current.Properties["USERNAME"] = userName;
+
                 //初始化查询条件
-                string strUser = lblLoginName.Text.Substring(lblLoginName.Text.IndexOf('，') + 1);
-                var lstQuerys = await ticketHelper.ReadQuerys("Query");
-                var query = (from q in lstQuerys
-                             where q.User == strUser
-                             select q).FirstOrDefault<Query>();
-                if (query != null)
-                {
-                    txtStartCity.Text = query.FromName.ToString();
-                    txtStartCity.SelectedValue = query.FromCode.ToString();
-                    txtEndCity.Text = query.ToName.ToString();
-                    txtEndCity.SelectedValue = query.ToCode.ToString();
-                    txtDate.Text = query.Date.ToString();
-                }
-                lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["QueryRandomParamUrl"], false);
+                await InitQueryValue();
             }
             else
             {
@@ -1516,6 +1482,30 @@ namespace TrainAssistant
                 await GetValidateCodeImage();
                 txtLoginCodes.Text = "";
             }
+
+            OpenNotifyMsg("登录提示", lblStatusMsg.Content.ToString());
+        }
+
+        /// <summary>
+        /// 初始化查询条件
+        /// </summary>
+        /// <returns></returns>
+        private async Task InitQueryValue()
+        {
+            string strUser = lblLoginName.Text.Substring(lblLoginName.Text.IndexOf('，') + 1);
+            var lstQuerys = await ticketHelper.ReadQuerys("Query");
+            var query = (from q in lstQuerys
+                         where q.User == strUser
+                         select q).FirstOrDefault<Query>();
+            if (query != null)
+            {
+                txtStartCity.Text = query.FromName.ToString();
+                txtStartCity.SelectedValue = query.FromCode.ToString();
+                txtEndCity.Text = query.ToName.ToString();
+                txtEndCity.SelectedValue = query.ToCode.ToString();
+                txtDate.Text = query.Date.ToString();
+            }
+            lblRandomParam.Tag = await ticketHelper.GetRandomParamKey(ConfigurationManager.AppSettings["QueryRandomParamUrl"], false);
         }
 
         //关闭提交订单验证码对话框

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MahApps.Metro.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,26 +12,17 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Speech;
-using System.Speech.Synthesis;
 
 namespace TrainAssistant
 {
     /// <summary>
-    /// Window1.xaml 的交互逻辑
+    /// AboutWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class Window1 : Window
+    public partial class AboutWindow : MetroWindow
     {
-        public Window1()
+        public AboutWindow()
         {
             InitializeComponent();
-        }
-
-        private void btnRead_Click(object sender, RoutedEventArgs e)
-        {
-            SpeechSynthesizer speech = new SpeechSynthesizer();
-            speech.Rate = 0;
-            speech.SpeakAsync(txtTestValue.Text);
         }
     }
 }

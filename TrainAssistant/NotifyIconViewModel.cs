@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
-using TrainAssistant;
 
-namespace Windowless_Sample
+namespace TrainAssistant
 {
     /// <summary>
     /// Provides bindable properties and commands for the NotifyIcon. In this sample, the
@@ -32,29 +32,15 @@ namespace Windowless_Sample
         }
 
         /// <summary>
-        /// Hides the main window. This command is only enabled if a window is open.
-        /// </summary>
-        public ICommand HideWindowCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CommandAction = () => Application.Current.MainWindow.Close(),
-                    CanExecuteFunc = () => Application.Current.MainWindow != null
-                };
-            }
-        }
-
-
-        /// <summary>
         /// Shuts down the application.
         /// </summary>
         public ICommand ExitApplicationCommand
         {
             get
             {
-                return new DelegateCommand {CommandAction = () => Application.Current.Shutdown()};
+                return new DelegateCommand {
+                    CommandAction = () => Application.Current.Shutdown()
+                };
             }
         }
     }
@@ -75,7 +61,7 @@ namespace Windowless_Sample
 
         public bool CanExecute(object parameter)
         {
-            return CanExecuteFunc == null  || CanExecuteFunc();
+            return CanExecuteFunc == null || CanExecuteFunc();
         }
 
         public event EventHandler CanExecuteChanged
