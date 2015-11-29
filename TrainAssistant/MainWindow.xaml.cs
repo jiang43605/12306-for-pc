@@ -459,7 +459,8 @@ namespace TrainAssistant
                 }
             }
             chkTickTypes = chkTickTypes.IndexOf("QB") > -1 || chkTickTypes == "" ? "QB" : chkTickTypes;
-            List<Tickets> ticketModel = await ticketHelper.GetSearchTrain(txtDate.Text.Replace('/', '-'), fromStationCode, toStationCode, purposeCode, cboTrainTime.Text, chkTickTypes, (bool)chkCanReservate.IsChecked);
+            string ticketDate = DateTime.Parse(txtDate.Text).ToString("yyyy-MM-dd");
+            List<Tickets> ticketModel = await ticketHelper.GetSearchTrain(ticketDate, fromStationCode, toStationCode, purposeCode, cboTrainTime.Text, chkTickTypes, (bool)chkCanReservate.IsChecked);
             if (ticketModel != null)
             {
                 gridTrainList.ItemsSource = ticketModel;
@@ -1641,6 +1642,13 @@ namespace TrainAssistant
         //验证并提交（自动提交订单）
         private async void btnAutoSubmitOrderCodeValidate_Click(object sender, RoutedEventArgs e)
         {
+            bool result = await ticketHelper.CheckVerifyCode(txtAutoSubmitOrderCodes.Text);
+            if (!result)
+            {
+                OpenNotifyMsg("提示", "验证码不正确");
+                return;
+            }
+
             Dictionary<bool, string> dicResult = await ticketHelper.ConfirmOrderForAutoQueue(lblPassengers.Tag.ToString(), lblPassengers.Uid.ToString(), txtAutoSubmitOrderCodes.Text, lblAutoIsChange.Tag.ToString(), lblAutoIsChange.Uid.ToString(), lblAutoIsChange.Content.ToString());
             if (!dicResult.Keys.First())
             {

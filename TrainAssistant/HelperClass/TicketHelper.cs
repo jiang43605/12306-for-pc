@@ -207,7 +207,8 @@ namespace JasonLong.Helper
                 string result = "", url = ConfigurationManager.AppSettings["LoginUrl"].ToString();
                 //string loginrandomValue = JSFunctionHelper.GetRandomParamCodes(loginRandomKey, "1111");
                 Dictionary<string, string> param = new Dictionary<string, string>();
-                param.Add("loginUserDTO.user_name", HttpUtility.UrlEncode(userName));//用户名
+                //param.Add("loginUserDTO.user_name", HttpUtility.UrlEncode(userName));//用户名
+                param.Add("loginUserDTO.user_name", userName);//用户名
                 param.Add("userDTO.password", password);//密码
                 param.Add("randCode", HttpUtility.UrlEncode(code).ToUpper());//验证码
                 //param.Add(loginRandomKey, loginrandomValue);
@@ -1065,7 +1066,7 @@ namespace JasonLong.Helper
                 if (!state)
                 {
                     JObject json = JObject.Parse(confirmOrderForAutoQueueResult);
-                    errorMsg = json["messages"].ToString();
+                    errorMsg = json["data"]["errMsg"].ToString();
                 }
                 Dictionary<bool, string> dicResult = new Dictionary<bool, string>()
                 {
