@@ -191,6 +191,29 @@ namespace JasonLong.Helper
         }
 
         /// <summary>
+        /// 获取查票地址
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> GetQueryTicketUrl()
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(100);
+
+                string url = ConfigurationManager.AppSettings["QueryRandomParamUrl"];
+                string result = httpHelper.GetResponseChartByGET(url), res = "";
+
+                var queryTicketAction = Regex.Match(result, @"var\s+CLeftTicketUrl\s+=\s+'(?<queryTicketAction>[^']+)';", RegexOptions.Singleline, TimeSpan.FromSeconds(10));
+                if (queryTicketAction.Success)
+                {
+                    res = queryTicketAction.Groups["queryTicketAction"].Value;
+                }
+
+                return res;
+            });
+        }
+
+        /// <summary>
         /// 登录
         /// </summary>
         /// <param name="userName"></param>
@@ -299,13 +322,15 @@ namespace JasonLong.Helper
         /// <param name="tostation">目的地</param>
         /// <param name="purposecode">是否为普通票</param>
         /// <returns></returns>
-        public Task<List<Tickets>> GetSearchTrain(string date, string fromstation, string tostation, string purposecode, string time, string tickTypes, bool isCanBuy)
+        public Task<List<Tickets>> GetSearchTrain(string queryAction, string date, string fromstation, string tostation, string purposecode, string time, string tickTypes, bool isCanBuy)
         {
             return Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(100);
                 List<Tickets> ticks = new List<Tickets>();
-                string url = ConfigurationManager.AppSettings["QueryTicketUrl"] + "?leftTicketDTO.train_date=" + date + "&leftTicketDTO.from_station=" + fromstation + "&leftTicketDTO.to_station=" + tostation + "&purpose_codes=" + purposecode;
+
+                string url = string.Format("{0}/{1}?leftTicketDTO.train_date={2}&leftTicketDTO.from_station={3}&leftTicketDTO.to_station={4}&purpose_codes={5}", ConfigurationManager.AppSettings["QueryTicketUrl"], queryAction, date, fromstation, tostation, purposecode);
+
                 string result = httpHelper.GetResponseChartByGET(url);
                 if (result != "" && result != "-1" && !result.Contains("错误"))
                 {

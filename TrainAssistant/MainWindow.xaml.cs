@@ -460,7 +460,17 @@ namespace TrainAssistant
             }
             chkTickTypes = chkTickTypes.IndexOf("QB") > -1 || chkTickTypes == "" ? "QB" : chkTickTypes;
             string ticketDate = DateTime.Parse(txtDate.Text).ToString("yyyy-MM-dd");
-            List<Tickets> ticketModel = await ticketHelper.GetSearchTrain(ticketDate, fromStationCode, toStationCode, purposeCode, cboTrainTime.Text, chkTickTypes, (bool)chkCanReservate.IsChecked);
+
+            string queryTicketAction = await ticketHelper.GetQueryTicketUrl(); // 获取查询的url
+
+            if (string.IsNullOrEmpty(queryTicketAction))
+            {
+                lblStatusMsg.Content = "查询失败，原因：可能查询地址不正确";
+                return 0;
+            }
+
+            List<Tickets> ticketModel = await ticketHelper.GetSearchTrain(queryTicketAction,ticketDate, fromStationCode, toStationCode, purposeCode, cboTrainTime.Text, chkTickTypes, (bool)chkCanReservate.IsChecked); // 查询
+
             if (ticketModel != null)
             {
                 gridTrainList.ItemsSource = ticketModel;
