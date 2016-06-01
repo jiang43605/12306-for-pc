@@ -337,8 +337,6 @@ namespace JasonLong.Helper
                     JObject json = JObject.Parse(result);
                     if ((bool)json["status"])
                     {
-                        var ss = (from t in json["data"].Children()
-                                  select t).ToList();
                         var list = (from t in json["data"]
                                     select new
                                     {

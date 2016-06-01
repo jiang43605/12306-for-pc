@@ -158,14 +158,7 @@ namespace TrainAssistant
                 {
                     txtPassword.Password = model.Password;
                     chkRemeberMe.IsChecked = true;
-                    if (model.IsAutoLogin)
-                    {
-                        chkAutoLogin.IsChecked = true;
-                    }
-                    else
-                    {
-                        chkAutoLogin.IsChecked = false;
-                    }
+                    chkAutoLogin.IsChecked = model.IsAutoLogin;
                 }
             }
             else
@@ -469,7 +462,7 @@ namespace TrainAssistant
                 return 0;
             }
 
-            List<Tickets> ticketModel = await ticketHelper.GetSearchTrain(queryTicketAction,ticketDate, fromStationCode, toStationCode, purposeCode, cboTrainTime.Text, chkTickTypes, (bool)chkCanReservate.IsChecked); // 查询
+            List<Tickets> ticketModel = await ticketHelper.GetSearchTrain(queryTicketAction, ticketDate, fromStationCode, toStationCode, purposeCode, cboTrainTime.Text, chkTickTypes, (bool)chkCanReservate.IsChecked); // 查询
 
             if (ticketModel != null)
             {
@@ -1206,19 +1199,17 @@ namespace TrainAssistant
             }
             var arrSeatType = strSeatTypes.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             Dictionary<string, string> dicSeatTypes = new Dictionary<string, string>();
-            List<string> lstSeat = new List<string>();
-            for (int i = 0; i < arrSeatType.Count(); i++)
+            for (int s = 0; s < arrSeatType.Count(); s++)
             {
-                lstSeat.Add(arrSeatType[i]);
+                string seatValue = arrSeatType[s] == "商务座" ? "9" : arrSeatType[s] == "特等座" ? "P" : arrSeatType[s] == "一等座" ? "M" : arrSeatType[s] == "二等座" ? "O" : arrSeatType[s] == "高级软卧" ? "6" : arrSeatType[s] == "软卧" ? "4" : arrSeatType[s] == "硬卧" ? "3" : arrSeatType[s] == "软座" ? "2" : arrSeatType[s] == "硬座" ? "1" : arrSeatType[s] == "无座" ? "1" : "1";
+
+                if (!dicSeatTypes.ContainsKey(arrSeatType[s]))
+                {
+                    dicSeatTypes.Add(arrSeatType[s], seatValue);
+                }
             }
-            lstSeat = lstSeat.Distinct().ToList();
-            dicSeatTypes.Clear();
-            for (int s = 0; s < lstSeat.Count(); s++)
-            {
-                string seatValue = lstSeat[s] == "商务座" ? "9" : lstSeat[s] == "特等座" ? "P" : lstSeat[s] == "一等座" ? "M" : lstSeat[s] == "二等座" ? "O" : lstSeat[s] == "高级软卧" ? "6" : lstSeat[s] == "软卧" ? "4" : lstSeat[s] == "硬卧" ? "3" : lstSeat[s] == "软座" ? "2" : lstSeat[s] == "硬座" ? "1" : lstSeat[s] == "无座" ? "1" : "1";
-                dicSeatTypes.Add(lstSeat[s], seatValue);
-            }
-            int sRow = (int)Math.Ceiling((double)lstSeat.Count() / 6), sCell = 6;
+
+            int sRow = (int)Math.Ceiling((double)dicSeatTypes.Count() / 6), sCell = 6;
             while (sRow-- > 0)
             {
                 gridSeatTypes.RowDefinitions.Add(new RowDefinition()
